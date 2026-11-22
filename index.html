@@ -1222,7 +1222,7 @@
     }
 
     function isSignalingConfigured() {
-      return /^https:\/\/[a-zA-Z0-9-]+\.(firebaseio\.com|firebasedatabase\.app)/.test(getFirebaseBaseUrl());
+      return /^https:\/\/[a-zA-Z0-9.-]+\.(firebaseio\.com|firebasedatabase\.app)/.test(getFirebaseBaseUrl());
     }
 
     const fb = {
@@ -3028,7 +3028,7 @@
 
     async function testSignalingConnection() {
       const urlVal = document.getElementById('set-firebase-url').value.trim().replace(/\/+$/, '');
-      if (!/^https:\/\/[a-zA-Z0-9-]+\.(firebaseio\.com|firebasedatabase\.app)/.test(urlVal)) {
+      if (!/^https:\/\/[a-zA-Z0-9.-]+\.(firebaseio\.com|firebasedatabase\.app)/.test(urlVal)) {
         showToast('Masukkan URL Firebase Realtime Database yang valid terlebih dahulu.', 'error');
         return;
       }
