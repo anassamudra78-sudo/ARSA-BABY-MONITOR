@@ -10,9 +10,9 @@
   "theme_color": "#344B3F",
   "icons": [
     {
-      "src": "icon.svg",
-      "sizes": "192x192 512x512 any",
-      "type": "image/svg+xml",
+      "src": "logoarsa.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     }
   ]
