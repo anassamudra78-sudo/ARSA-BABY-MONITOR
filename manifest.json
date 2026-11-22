@@ -1,0 +1,19 @@
+{
+  "name": "ARSA BABY MONITOR",
+  "short_name": "ARSA Monitor",
+  "description": "Close to your baby, wherever you are.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#344B3F",
+  "theme_color": "#344B3F",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "192x192 512x512 any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
