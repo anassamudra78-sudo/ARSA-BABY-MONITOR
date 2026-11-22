@@ -1,0 +1,3107 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#344B3F" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>ARSA BABY MONITOR — Dekat dengan buah hati</title>
+
+  <!-- Google Fonts: Manrope & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            sage: '#91A995',
+            forest: '#344B3F',
+            cream: '#F7F6F1',
+            softgray: '#E8EAE6',
+            navy: '#202B35',
+            muted: '#7B8580',
+            alertred: '#D95F5F',
+            onlinegreen: '#4D9971',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            display: ['Manrope', 'Inter', 'system-ui', 'sans-serif'],
+          },
+          borderRadius: {
+            'card': '28px',
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Lightweight QR Code Generator CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .font-display {
+      font-family: 'Manrope', 'Inter', system-ui, sans-serif;
+    }
+    /* Safe area bottom padding for Android gesture bars */
+    .pb-safe {
+      padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+    }
+    .pb-safe-lg {
+      padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+    }
+    /* Smooth subtle screen transitions */
+    .screen-fade {
+      animation: fadeSlideIn 0.22s ease-out;
+    }
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Clean custom range input */
+    input[type="range"] {
+      accent-color: #91A995;
+    }
+    /* Hide scrollbars cleanly where needed */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-[#F7F6F1] text-[#202B35] dark:bg-[#121815] dark:text-[#F2F4F0] min-h-screen transition-colors duration-200 antialiased">
+
+  <!-- Hidden audio element for incoming Parent Talk-Back on Tablet -->
+  <audio id="tablet-talkback-audio" autoplay playsinline class="hidden"></audio>
+
+  <!-- =====================================================================
+       NAVIGATION: TABLET/DESKTOP TOP BAR & MOBILE BOTTOM BAR
+       ===================================================================== -->
+  <header id="nav-top" class="hidden md:block sticky top-0 z-30 border-b border-[#E8EAE6] dark:border-[#24302A] bg-[#F7F6F1]/90 dark:bg-[#121815]/90 backdrop-blur-md">
+    <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+      <button onclick="navigate('dashboard')" class="flex items-center gap-3 text-left focus:outline-none">
+        <div class="w-9 h-9 rounded-xl bg-[#344B3F] flex items-center justify-center shrink-0 shadow-sm">
+          <svg width="24" height="24" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+            <circle cx="32" cy="32" r="20" stroke="#91A995" stroke-width="3.5" stroke-opacity="0.7" />
+            <circle cx="32" cy="32" r="11" fill="#F7F6F1" fill-opacity="0.16" stroke="#F7F6F1" stroke-width="3" />
+            <circle cx="32" cy="32" r="4.5" fill="#91A995" />
+            <circle cx="45" cy="19" r="3" fill="#4D9971" />
+          </svg>
+        </div>
+        <div>
+          <span class="font-display font-bold text-sm tracking-tight block leading-none">ARSA BABY MONITOR</span>
+          <span id="nav-role-subtitle" class="text-[11px] text-[#7B8580] dark:text-[#91A995]">Mode Monitor Orang Tua</span>
+        </div>
+      </button>
+
+      <nav class="flex items-center gap-1.5" id="nav-top-links"></nav>
+    </div>
+  </header>
+
+  <nav id="nav-bottom" class="hidden md:hidden fixed bottom-0 inset-x-0 z-30 border-t border-[#E8EAE6] dark:border-[#25322B] bg-white/95 dark:bg-[#141B18]/95 backdrop-blur-lg pb-safe">
+    <div id="nav-bottom-links" class="grid grid-cols-5 px-2 pt-1.5"></div>
+  </nav>
+
+  <!-- =====================================================================
+       MAIN CONTENT SCREENS
+       ===================================================================== -->
+  <main id="app-main">
+
+    <!-- 1. SCREEN: WELCOME -->
+    <section id="screen-welcome" class="hidden screen-fade min-h-screen flex flex-col items-center justify-between px-6 py-10 max-w-md mx-auto text-center">
+      <div class="w-full flex justify-center pt-4">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#91A995]/15 text-[#344B3F] dark:text-[#C5D6C8]">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+          Enkripsi Privat Langsung
+        </div>
+      </div>
+
+      <div class="space-y-7 my-auto py-8">
+        <!-- Premium Abstract Camera Emblem -->
+        <div class="relative mx-auto w-32 h-32 flex items-center justify-center">
+          <div class="absolute inset-0 rounded-[36px] bg-[#91A995]/25 blur-xl"></div>
+          <div class="relative w-28 h-28 rounded-[32px] bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] shadow-lg flex items-center justify-center">
+            <svg width="68" height="68" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+              <rect width="64" height="64" rx="18" fill="#344B3F" />
+              <circle cx="32" cy="32" r="18" stroke="#91A995" stroke-width="2.5" stroke-opacity="0.65" />
+              <circle cx="32" cy="32" r="11" fill="#F7F6F1" fill-opacity="0.14" stroke="#F7F6F1" stroke-width="2.5" />
+              <circle cx="32" cy="32" r="4.5" fill="#91A995" />
+              <circle cx="43.5" cy="20.5" r="2.5" fill="#4D9971" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <p class="text-xs font-bold tracking-[0.22em] uppercase text-[#91A995]">ARSA BABY MONITOR</p>
+          <h1 class="font-display text-3xl sm:text-4xl font-bold tracking-tight leading-tight">
+            Dekat dengan buah hati, di mana pun Anda berada.
+          </h1>
+          <p class="text-sm leading-relaxed text-[#7B8580] dark:text-[#A2B0A9]">
+            Hubungkan tablet Android di kamar bayi dan ponsel Anda secara langsung untuk memantau video dan suara dengan tenang.
+          </p>
+        </div>
+      </div>
+
+      <div class="w-full space-y-3.5 pb-4">
+        <button onclick="handleWelcomeStart()" class="w-full min-h-[56px] rounded-2xl bg-[#344B3F] hover:bg-[#293C32] text-white font-semibold text-base shadow-md transition active:scale-[0.98]">
+          Mulai Sekarang
+        </button>
+        <p class="text-xs flex items-center justify-center gap-1.5 text-[#7B8580] dark:text-[#8F9E96]">
+          <i data-lucide="lock" class="w-3.5 h-3.5 text-[#91A995]"></i>
+          Pemantauan privat langsung antar perangkat Anda
+        </p>
+      </div>
+    </section>
+
+    <!-- 2. SCREEN: DEVICE SETUP -->
+    <section id="screen-setup" class="hidden screen-fade min-h-screen px-5 py-8 sm:py-12 max-w-3xl mx-auto flex flex-col justify-center">
+      <div class="space-y-2 mb-7">
+        <button onclick="navigate('welcome')" class="inline-flex items-center gap-1.5 text-xs font-semibold mb-2 text-[#7B8580] dark:text-[#91A995]">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          Kembali
+        </button>
+        <p class="text-xs font-bold uppercase tracking-[0.16em] text-[#91A995]">Pilih Peran Perangkat</p>
+        <h1 class="font-display text-2xl sm:text-3xl font-bold tracking-tight">
+          Bagaimana perangkat ini akan digunakan?
+        </h1>
+        <p class="text-sm text-[#7B8580] dark:text-[#A2B0A9]">
+          Pilih peran untuk perangkat ini. Anda dapat mengubahnya kapan saja di menu Pengaturan.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Option A: Baby Camera -->
+        <div class="rounded-[28px] p-6 bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] shadow-sm hover:border-[#91A995] transition flex flex-col justify-between gap-6">
+          <div class="space-y-4">
+            <div class="w-14 h-14 rounded-2xl bg-[#344B3F] text-white flex items-center justify-center shadow-sm">
+              <i data-lucide="tablet" class="w-7 h-7"></i>
+            </div>
+            <div class="space-y-2">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-[#91A995]">Tablet di Kamar Bayi</span>
+              <h2 class="font-display text-xl font-bold">Gunakan sebagai Kamera Bayi</h2>
+              <p class="text-sm leading-relaxed text-[#7B8580] dark:text-[#A2B0A9]">
+                Letakkan perangkat ini di kamar bayi (di luar jangkauan bayi) untuk mengirim video dan audio langsung secara aman.
+              </p>
+            </div>
+          </div>
+          <button onclick="selectDeviceRole('camera')" class="w-full min-h-[52px] rounded-2xl bg-[#344B3F] hover:bg-[#293C32] text-white font-semibold text-sm transition active:scale-[0.98]">
+            Atur sebagai Kamera
+          </button>
+        </div>
+
+        <!-- Option B: Parent Monitor -->
+        <div class="rounded-[28px] p-6 bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] shadow-sm hover:border-[#91A995] transition flex flex-col justify-between gap-6">
+          <div class="space-y-4">
+            <div class="w-14 h-14 rounded-2xl bg-[#91A995]/20 text-[#344B3F] dark:text-[#C5D6C8] flex items-center justify-center">
+              <i data-lucide="smartphone" class="w-7 h-7"></i>
+            </div>
+            <div class="space-y-2">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-[#91A995]">HP Pemantau Jarak Jauh</span>
+              <h2 class="font-display text-xl font-bold">Gunakan sebagai Monitor Orang Tua</h2>
+              <p class="text-sm leading-relaxed text-[#7B8580] dark:text-[#A2B0A9]">
+                Gunakan ponsel ini untuk melihat dan mendengarkan bayi dari jauh melalui Wi-Fi maupun data seluler.
+              </p>
+            </div>
+          </div>
+          <button onclick="selectDeviceRole('monitor')" class="w-full min-h-[52px] rounded-2xl bg-[#EFF2EC] hover:bg-[#E3E8DF] dark:bg-[#283630] dark:hover:bg-[#31423B] text-[#344B3F] dark:text-white font-semibold text-sm transition active:scale-[0.98]">
+            Atur sebagai Monitor
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. SCREEN: MAIN DASHBOARD -->
+    <section id="screen-dashboard" class="hidden screen-fade px-4 sm:px-6 pt-5 md:pt-8 pb-28 md:pb-12 max-w-5xl mx-auto space-y-5">
+      <!-- Greeting Header -->
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-xs font-semibold text-[#91A995]">Halo, Ayah &amp; Bunda</p>
+          <h1 class="font-display text-2xl sm:text-3xl font-bold tracking-tight mt-0.5">Monitor Bayi Anda</h1>
+          <p class="text-sm mt-1 text-[#7B8580] dark:text-[#A2B0A9]">Si kecil selalu dekat di hati.</p>
+        </div>
+        <div class="md:hidden w-10 h-10 rounded-xl bg-[#344B3F] flex items-center justify-center shrink-0">
+          <svg width="26" height="26" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+            <circle cx="32" cy="32" r="20" stroke="#91A995" stroke-width="3.5" stroke-opacity="0.7" />
+            <circle cx="32" cy="32" r="11" fill="#F7F6F1" fill-opacity="0.16" stroke="#F7F6F1" stroke-width="3" />
+            <circle cx="32" cy="32" r="4.5" fill="#91A995" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Honest Prototype Banner (Hidden once Firebase URL is configured) -->
+      <div id="dash-prototype-banner" class="rounded-2xl px-4 py-3.5 border bg-[#F2F4EE] border-[#DFE5DC] text-[#344B3F] dark:bg-[#1D2722] dark:border-[#2E3C35] dark:text-[#C8D4CD] flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <i data-lucide="info" class="w-4 h-4 text-[#91A995] shrink-0"></i>
+          <p class="text-xs leading-snug">
+            <strong class="font-semibold">Mode Prototipe</strong> — Koneksi jarak jauh belum dikonfigurasi.
+          </p>
+        </div>
+        <button onclick="navigate('settings')" class="shrink-0 text-xs font-semibold px-3.5 py-2 rounded-xl bg-[#344B3F] text-white hover:bg-[#293C32] transition">
+          Atur
+        </button>
+      </div>
+
+      <!-- Main Device Card -->
+      <div class="rounded-[28px] p-5 sm:p-6 bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] shadow-[0_6px_24px_rgba(32,43,53,0.04)] grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+        <!-- Honest Thumbnail / Preview Area -->
+        <div class="md:col-span-5 rounded-2xl overflow-hidden aspect-video bg-[#161E1A] relative flex flex-col items-center justify-center text-center p-4 border border-black/10">
+          <div id="dash-preview-idle" class="space-y-2">
+            <div class="w-11 h-11 rounded-full bg-white/10 text-[#91A995] mx-auto flex items-center justify-center">
+              <i data-lucide="video-off" class="w-5 h-5"></i>
+            </div>
+            <p id="dash-preview-title" class="text-xs font-medium text-white/90">Belum ada siaran aktif</p>
+            <p class="text-[11px] text-white/55">Video langsung hanya tampil saat perangkat benar-benar terhubung</p>
+          </div>
+          <div id="dash-preview-live" class="hidden space-y-2">
+            <div class="w-11 h-11 rounded-full bg-[#4D9971]/25 text-[#9CE3BB] mx-auto flex items-center justify-center">
+              <i data-lucide="radio" class="w-5 h-5 animate-pulse"></i>
+            </div>
+            <p class="text-xs font-semibold text-white">Sesi Langsung Aktif</p>
+            <p id="dash-preview-route" class="text-[11px] text-[#A2B0A9]">WebRTC Terenkripsi</p>
+          </div>
+        </div>
+
+        <!-- Device Info & Primary Action -->
+        <div class="md:col-span-7 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p id="dash-role-label" class="text-[11px] font-bold uppercase tracking-wider text-[#91A995]">Kamera Terpasang</p>
+              <h2 id="dash-device-name" class="font-display text-xl font-bold mt-0.5">Belum Ada Kamera Terpasang</h2>
+            </div>
+            <span id="dash-status-pill"></span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 p-3.5 rounded-2xl bg-[#F7F6F1] dark:bg-[#141C18] text-xs">
+            <div>
+              <span class="text-[#7B8580] dark:text-[#8F9E96]">Kualitas Koneksi</span>
+              <p id="dash-quality" class="font-semibold mt-0.5">Belum Terhubung</p>
+            </div>
+            <div>
+              <span class="text-[#7B8580] dark:text-[#8F9E96]">Terakhir Terhubung</span>
+              <p id="dash-last-connected" class="font-semibold mt-0.5">Belum pernah</p>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-2.5">
+            <button id="dash-primary-btn" onclick="handleDashboardPrimaryAction()" class="flex-1 min-h-[52px] rounded-2xl bg-[#344B3F] hover:bg-[#293C32] text-white font-semibold text-sm flex items-center justify-center gap-2 transition active:scale-[0.98]">
+              <i data-lucide="monitor" class="w-4 h-4"></i>
+              <span id="dash-primary-btn-text">Mulai Memantau</span>
+            </button>
+            <button onclick="navigate('pairing')" class="min-h-[52px] px-5 rounded-2xl bg-[#F2F3EE] hover:bg-[#E6E9E2] dark:bg-[#26332D] dark:hover:bg-[#2F3F38] text-[#344B3F] dark:text-white font-semibold text-sm flex items-center justify-center gap-2 transition active:scale-[0.98]">
+              <i data-lucide="qr-code" class="w-4 h-4"></i>
+              Pasangkan Baru
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Secondary Actions -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <button onclick="navigate('pairing')" class="rounded-2xl p-4 bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] text-left flex items-center justify-between gap-3 transition active:scale-[0.99]">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-[#91A995]/20 text-[#344B3F] dark:text-[#C5D6C8] flex items-center justify-center">
+              <i data-lucide="qr-code" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <p class="text-sm font-semibold">Perangkat Saya</p>
+              <p id="dash-paired-count" class="text-xs text-[#7B8580] dark:text-[#8F9E96]">0 terpasang</p>
+            </div>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-[#91A995]"></i>
+        </button>
+
+        <button onclick="navigate('status')" class="rounded-2xl p-4 bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] text-left flex items-center justify-between gap-3 transition active:scale-[0.99]">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-[#91A995]/20 text-[#344B3F] dark:text-[#C5D6C8] flex items-center justify-center">
+              <i data-lucide="activity" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <p class="text-sm font-semibold">Status Koneksi</p>
+              <p class="text-xs text-[#7B8580] dark:text-[#8F9E96]">Diagnostik &amp; solusi</p>
+            </div>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-[#91A995]"></i>
+        </button>
+
+        <button onclick="navigate('settings')" class="rounded-2xl p-4 bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] text-left flex items-center justify-between gap-3 transition active:scale-[0.99]">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-[#91A995]/20 text-[#344B3F] dark:text-[#C5D6C8] flex items-center justify-center">
+              <i data-lucide="settings" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <p class="text-sm font-semibold">Pengaturan</p>
+              <p class="text-xs text-[#7B8580] dark:text-[#8F9E96]">Signaling, tema &amp; privasi</p>
+            </div>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-[#91A995]"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- 4. SCREEN: CAMERA MODE (TABLET — WEBRTC SENDER) -->
+    <section id="screen-camera" class="hidden screen-fade px-4 sm:px-6 pt-5 md:pt-7 pb-28 md:pb-12 max-w-6xl mx-auto space-y-5">
+      <!-- Top Header with Editable Name -->
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <button id="cam-name-btn" onclick="toggleCameraNameEdit(true)" class="font-display text-2xl font-bold tracking-tight hover:opacity-80 transition text-left flex items-center gap-2">
+              <span id="cam-device-name-text">Kamar Si Kecil</span>
+              <i data-lucide="pencil" class="w-4 h-4 text-[#91A995]"></i>
+            </button>
+            <form id="cam-name-form" onsubmit="saveCameraName(event)" class="hidden flex items-center gap-2">
+              <input id="cam-name-input" type="text" maxlength="28" class="px-3 py-1.5 rounded-xl text-sm font-semibold border bg-white dark:bg-[#1B2420] border-[#D6DBD3] dark:border-[#38463F] outline-none" />
+              <button type="submit" class="w-9 h-9 rounded-xl bg-[#344B3F] text-white flex items-center justify-center" aria-label="Simpan nama">
+                <i data-lucide="check" class="w-4 h-4"></i>
+              </button>
+            </form>
+          </div>
+          <p id="cam-primary-status" class="text-xs mt-0.5 text-[#7B8580] dark:text-[#A2B0A9]">Menyiapkan Kamera</p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span id="cam-status-pill"></span>
+          <button onclick="navigate('pairing')" class="min-h-[42px] px-4 rounded-2xl bg-[#344B3F] hover:bg-[#293C32] text-white text-xs font-semibold flex items-center gap-1.5 transition">
+            <i data-lucide="qr-code" class="w-4 h-4"></i>
+            QR Pairing
+          </button>
+        </div>
+      </div>
+
+      <!-- HTTPS Security Context Warning -->
+      <div id="cam-https-warning" class="hidden rounded-2xl p-4 bg-[#D95F5F]/12 border border-[#D95F5F]/30 text-xs text-[#D95F5F] flex items-start gap-2.5">
+        <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0 mt-0.5"></i>
+        <p><strong>HTTPS Diperlukan:</strong> Chrome Android mewajibkan alamat <strong>HTTPS</strong> untuk mengakses kamera dan mikrofon. Buka aplikasi ini melalui link GitHub Pages (`https://...`).</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <!-- Left: Live Local Camera Preview & Controls -->
+        <div class="lg:col-span-8 space-y-3.5">
+          <div class="relative rounded-[28px] overflow-hidden bg-[#101613] aspect-video shadow-lg border border-black/15">
+            <video id="camera-preview" autoplay playsinline muted class="w-full h-full object-cover hidden"></video>
+
+            <!-- Camera Placeholder / Error Overlay -->
+            <div id="camera-placeholder" class="w-full h-full flex flex-col items-center justify-center p-6 text-center text-white/85 space-y-3">
+              <i data-lucide="video-off" class="w-9 h-9 text-[#91A995]"></i>
+              <p id="camera-placeholder-msg" class="text-sm font-medium max-w-md">Mengaktifkan kamera perangkat...</p>
+              <button id="camera-retry-btn" onclick="startLocalCamera()" class="hidden min-h-[44px] px-5 rounded-2xl bg-[#344B3F] text-white text-xs font-semibold inline-flex items-center gap-2">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                Coba Akses Kamera Lagi
+              </button>
+            </div>
+
+            <!-- Top Overlay Badges -->
+            <div class="absolute top-3.5 left-3.5 right-3.5 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+              <div class="flex items-center gap-2">
+                <span id="cam-active-badge" class="hidden inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/65 backdrop-blur-md text-[11px] font-bold text-white border border-white/15">
+                  <span class="w-2 h-2 rounded-full bg-[#4D9971] animate-pulse"></span>
+                  KAMERA AKTIF
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-[11px] font-medium text-[#C5D6C8] border border-white/10">
+                  <i data-lucide="shield" class="w-3 h-3 text-[#91A995]"></i>
+                  Privat • Tidak Direkam
+                </span>
+              </div>
+              <span id="cam-track-info" class="hidden px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[11px] font-mono text-white/85"></span>
+            </div>
+
+            <!-- Bottom Real-Time Audio Level Meter -->
+            <div id="cam-audio-meter-wrap" class="hidden absolute bottom-3.5 left-3.5 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/65 backdrop-blur-md border border-white/10 pointer-events-none">
+              <i data-lucide="mic" class="w-3.5 h-3.5 text-[#9CE3BB]"></i>
+              <div class="w-20 h-1.5 rounded-full bg-white/20 overflow-hidden">
+                <div id="cam-audio-bar" class="h-full bg-[#4D9971] transition-all duration-75" style="width: 0%"></div>
+              </div>
+              <span id="cam-audio-label" class="text-[10px] font-semibold text-white/85">Mikrofon Aktif</span>
+            </div>
+          </div>
+
+          <!-- Camera Hardware Buttons -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <button id="btn-lens-rear" onclick="switchCameraLens('environment')" class="min-h-[50px] rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 border transition active:scale-[0.98]">
+              <i data-lucide="camera" class="w-4 h-4"></i>
+              Kamera Belakang
+            </button>
+            <button id="btn-lens-front" onclick="switchCameraLens('user')" class="min-h-[50px] rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 border transition active:scale-[0.98]">
+              <i data-lucide="switch-camera" class="w-4 h-4"></i>
+              Kamera Depan
+            </button>
+            <button id="btn-toggle-mic" onclick="toggleLocalMic()" class="min-h-[50px] rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 border transition active:scale-[0.98]">
+              <i data-lucide="mic" class="w-4 h-4 text-[#4D9971]"></i>
+              <span>Mikrofon On</span>
+            </button>
+            <button id="btn-toggle-cam" onclick="toggleLocalCam()" class="min-h-[50px] rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 border transition active:scale-[0.98]">
+              <i data-lucide="video" class="w-4 h-4 text-[#4D9971]"></i>
+              <span>Kamera On</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Broadcast Control, Permissions & Telemetry -->
+        <div class="lg:col-span-4 space-y-4">
+          <!-- Remote Streaming Card -->
+          <div class="rounded-[26px] p-5 bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] space-y-3.5">
+            <div class="flex items-center justify-between">
+              <h2 class="font-display font-bold text-sm">Siaran Jarak Jauh</h2>
+              <i data-lucide="radio" class="w-4 h-4 text-[#91A995]"></i>
+            </div>
+            <p id="cam-broadcast-desc" class="text-xs leading-relaxed text-[#7B8580] dark:text-[#A2B0A9]">
+              Mode prototipe — koneksi jarak jauh belum dikonfigurasi.
+            </p>
+            <p id="cam-broadcast-error" class="hidden text-[11px] text-[#D95F5F] bg-[#D95F5F]/10 px-3 py-2 rounded-xl leading-relaxed"></p>
+            <button id="btn-cam-broadcast" onclick="toggleCameraBroadcast()" class="w-full min-h-[48px] rounded-2xl bg-[#344B3F] hover:bg-[#293C32] text-white font-semibold text-xs transition active:scale-[0.98]">
+              Siap Terima Monitor Orang Tua
+            </button>
+          </div>
+
+          <!-- Tablet Telemetry & Permissions -->
+          <div class="rounded-[26px] p-5 bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] space-y-3 text-xs">
+            <h3 class="font-display font-bold text-sm">Status Perangkat Tablet</h3>
+
+            <div class="flex items-center justify-between">
+              <span class="text-[#7B8580] dark:text-[#A2B0A9]">Izin Kamera / Mik</span>
+              <span id="cam-perm-text" class="font-semibold">Memeriksa...</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-[#7B8580] dark:text-[#A2B0A9]">Jaringan</span>
+              <span id="cam-network-text" class="font-semibold flex items-center gap-1.5">Online</span>
+            </div>
+            <div id="cam-battery-row" class="hidden flex items-center justify-between">
+              <span class="text-[#7B8580] dark:text-[#A2B0A9]">Baterai Tablet</span>
+              <span id="cam-battery-text" class="font-semibold">—</span>
+            </div>
+
+            <div class="flex items-center justify-between pt-2.5 border-t border-[#E8EAE6] dark:border-[#2B3832]">
+              <div>
+                <p class="font-semibold">Cegah Layar Tidur</p>
+                <p id="cam-wakelock-status" class="text-[11px] text-[#7B8580] dark:text-[#8F9E96]">Nonaktif</p>
+              </div>
+              <button id="btn-wakelock-toggle" onclick="toggleKeepScreenAwake()" class="w-12 h-7 rounded-full p-1 transition bg-[#DCE0D9]" aria-label="Cegah layar tidur">
+                <div id="wakelock-knob" class="w-5 h-5 rounded-full bg-white transition-transform translate-x-0"></div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Safe Placement & Heat Warning -->
+          <div class="rounded-2xl p-4 border bg-[#F3F4EF] border-[#E4E7E0] text-[#5C6661] dark:bg-[#17201C] dark:border-[#293630] dark:text-[#9EB0A6] text-[11px] leading-relaxed flex items-start gap-2.5">
+            <i data-lucide="shield-check" class="w-4 h-4 text-[#91A995] shrink-0 mt-0.5"></i>
+            <p>Letakkan tablet di permukaan kokoh <strong>di luar boks dan jangkauan bayi</strong> serta jauh dari kabel charger. Jika tablet terasa hangat, turunkan kualitas video atau beri ventilasi cukup.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. SCREEN: MONITOR MODE (PARENT PHONE — WEBRTC RECEIVER) -->
+    <section id="screen-monitor" class="hidden screen-fade px-4 sm:px-6 pt-5 md:pt-7 pb-28 md:pb-12 max-w-4xl mx-auto space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <p class="text-[11px] font-bold uppercase tracking-wider text-[#91A995]">Monitor Orang Tua</p>
+          <h1 id="mon-camera-name" class="font-display text-2xl font-bold tracking-tight">Belum Ada Kamera Terpasang</h1>
+        </div>
+        <span id="mon-status-pill"></span>
+      </div>
+
+      <div id="mon-prototype-banner" class="hidden rounded-2xl px-4 py-3 border bg-[#F2F4EE] border-[#DFE5DC] text-[#344B3F] dark:bg-[#1D2722] dark:border-[#2E3C35] dark:text-[#C8D4CD] flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <i data-lucide="info" class="w-4 h-4 text-[#91A995] shrink-0"></i>
+          <p class="text-xs leading-snug"><strong class="font-semibold">Mode Prototipe</strong> — Konfigurasi Firebase RTDB di Pengaturan untuk siaran jarak jauh.</p>
+        </div>
+        <button onclick="navigate('settings')" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#344B3F] text-white">Atur</button>
+      </div>
+
+      <!-- Large Live Remote Video Viewport -->
+      <div class="relative rounded-[28px] overflow-hidden bg-[#101613] aspect-video shadow-lg border border-black/15">
+        <video id="monitor-video" autoplay playsinline class="w-full h-full object-contain bg-black hidden"></video>
+
+        <!-- Autoplay Unmute Prompt -->
+        <button id="mon-unmute-prompt" onclick="forceUnmuteMonitor()" class="hidden absolute top-3.5 left-3.5 z-10 min-h-[40px] px-4 rounded-full bg-black/75 text-white text-xs font-semibold border border-white/15 backdrop-blur-md flex items-center gap-2">
+          <i data-lucide="volume-2" class="w-4 h-4 text-[#9CE3BB]"></i>
+          Ketuk untuk Aktifkan Suara
+        </button>
+
+        <!-- Fullscreen Theater Button -->
+        <button id="mon-open-live-btn" onclick="navigate('live')" class="hidden absolute bottom-3.5 right-3.5 z-10 min-h-[42px] px-4 rounded-2xl bg-black/70 hover:bg-black/85 text-white text-xs font-semibold backdrop-blur-md border border-white/15 flex items-center gap-1.5">
+          <i data-lucide="maximize-2" class="w-4 h-4"></i>
+          Layar Penuh
+        </button>
+
+        <!-- Disconnected / Connecting Overlay -->
+        <div id="mon-empty-state" class="w-full h-full flex flex-col items-center justify-center p-6 text-center text-white space-y-3">
+          <div class="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center">
+            <i id="mon-empty-icon" data-lucide="video-off" class="w-6 h-6 text-[#91A995]"></i>
+          </div>
+          <div class="space-y-1 max-w-sm">
+            <p id="mon-empty-title" class="text-sm font-semibold">Siaran Langsung Belum Terhubung</p>
+            <p id="mon-empty-desc" class="text-xs text-white/65 leading-relaxed">
+              Tekan tombol di bawah untuk memulai streaming WebRTC langsung dari tablet kamar bayi.
+            </p>
+          </div>
+          <div class="flex flex-wrap justify-center gap-2.5 pt-1">
+            <button onclick="handleMonitorConnect()" class="min-h-[46px] px-6 rounded-2xl bg-[#344B3F] hover:bg-[#293C32] text-white text-xs font-semibold inline-flex items-center gap-2 transition active:scale-[0.98]">
+              <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+              <span id="mon-connect-btn-text">Hubungkan Sekarang</span>
+            </button>
+            <button onclick="navigate('live')" class="min-h-[46px] px-5 rounded-2xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold transition">
+              Buka Layar Penuh
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Monitor Controls -->
+      <div class="grid grid-cols-3 gap-3">
+        <button id="btn-mon-speaker" onclick="toggleMonitorSpeaker()" class="min-h-[58px] rounded-2xl border bg-white dark:bg-[#1B2420] border-[#E8EAE6] dark:border-[#2E3C35] flex flex-col items-center justify-center gap-1 text-xs font-semibold transition active:scale-[0.98]">
+          <i data-lucide="volume-2" class="w-5 h-5 text-[#4D9971]"></i>
+          <span id="mon-speaker-label">Speaker On</span>
+        </button>
+
+        <button id="btn-mon-talk" onpointerdown="startTalkBackUI(event)" onpointerup="stopTalkBackUI()" onpointerleave="stopTalkBackUI()" onpointercancel="stopTalkBackUI()" class="min-h-[58px] rounded-2xl border border-[#344B3F] bg-[#344B3F] hover:bg-[#293C32] text-white flex flex-col items-center justify-center gap-1 text-xs font-semibold select-none touch-none transition">
+          <i data-lucide="mic" class="w-5 h-5"></i>
+          <span id="mon-talk-label">Tahan untuk Bicara</span>
+        </button>
+
+        <button onclick="toggleMonitorConnection()" class="min-h-[58px] rounded-2xl border bg-white dark:bg-[#1B2420] border-[#E8EAE6] dark:border-[#2E3C35] flex flex-col items-center justify-center gap-1 text-xs font-semibold transition active:scale-[0.98]">
+          <i data-lucide="refresh-cw" class="w-5 h-5 text-[#91A995]"></i>
+          <span id="mon-reconnect-label">Sambung Ulang</span>
+        </button>
+      </div>
+
+      <!-- Video Quality Selector & Connection Summary -->
+      <div class="rounded-[26px] p-5 bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] space-y-4">
+        <div class="space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold">Kualitas Video</span>
+            <span id="mon-quality-desc" class="text-[11px] text-[#91A995] font-medium">Adaptif (hingga 720p)</span>
+          </div>
+          <div class="grid grid-cols-4 gap-2" id="mon-quality-buttons">
+            <button data-q="auto" onclick="setVideoQuality('auto')" class="min-h-[42px] rounded-xl text-xs font-semibold transition">Otomatis</button>
+            <button data-q="low" onclick="setVideoQuality('low')" class="min-h-[42px] rounded-xl text-xs font-semibold transition">Rendah</button>
+            <button data-q="medium" onclick="setVideoQuality('medium')" class="min-h-[42px] rounded-xl text-xs font-semibold transition">Sedang</button>
+            <button data-q="high" onclick="setVideoQuality('high')" class="min-h-[42px] rounded-xl text-xs font-semibold transition">Tinggi</button>
+          </div>
+        </div>
+
+        <div class="pt-3.5 border-t border-[#E8EAE6] dark:border-[#2B3832] flex items-center justify-between text-xs">
+          <span class="text-[#7B8580] dark:text-[#A2B0A9]">Jalur &amp; Kualitas Koneksi</span>
+          <span id="mon-route-quality" class="font-semibold">Belum Terhubung</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. SCREEN: LIVE MONITOR (THEATER VIEW) -->
+    <section id="screen-live" onclick="toggleLiveControls()" class="hidden fixed inset-0 z-40 bg-[#0B0F0D] text-white flex flex-col justify-between select-none">
+      <!-- Floating Top Bar -->
+      <div id="live-top-bar" onclick="event.stopPropagation()" class="relative z-20 px-4 sm:px-6 pt-4 pb-3 flex items-center justify-between gap-3 bg-gradient-to-b from-black/85 via-black/45 to-transparent transition-opacity duration-300">
+        <div class="flex items-center gap-3 min-w-0">
+          <button onclick="navigate('monitor')" class="w-11 h-11 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 transition" aria-label="Kembali">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+          </button>
+          <div class="min-w-0">
+            <h1 id="live-camera-name" class="font-display font-bold text-base truncate">Kamera Bayi</h1>
+            <div class="flex items-center gap-2 mt-0.5">
+              <span id="live-status-pill"></span>
+              <span id="live-quality-badge" class="text-[11px] text-white/75 font-medium"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="takeLocalSnapshot()" class="w-11 h-11 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md flex items-center justify-center transition" aria-label="Ambil tangkapan layar">
+            <i data-lucide="download" class="w-5 h-5"></i>
+          </button>
+          <button onclick="toggleLiveDetails()" class="w-11 h-11 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md flex items-center justify-center transition" aria-label="Detail koneksi">
+            <i data-lucide="info" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Edge-to-Edge Video Canvas -->
+      <div class="absolute inset-0 flex items-center justify-center bg-[#0B0F0D]">
+        <video id="live-video" autoplay playsinline class="max-w-full max-h-full w-full h-full object-contain hidden"></video>
+
+        <button id="live-unmute-prompt" onclick="event.stopPropagation(); forceUnmuteMonitor();" class="hidden absolute top-24 left-1/2 -translate-x-1/2 z-20 min-h-[44px] px-5 rounded-full bg-black/80 border border-white/20 text-white text-xs font-semibold flex items-center gap-2">
+          <i data-lucide="volume-2" class="w-4 h-4 text-[#9CE3BB]"></i>
+          Ketuk untuk Aktifkan Suara Bayi
+        </button>
+
+        <div id="live-empty-state" onclick="event.stopPropagation()" class="px-6 text-center max-w-sm space-y-4 z-10">
+          <div class="w-16 h-16 rounded-full bg-white/10 mx-auto flex items-center justify-center">
+            <i data-lucide="video-off" class="w-7 h-7 text-[#91A995]"></i>
+          </div>
+          <div class="space-y-1.5">
+            <p id="live-empty-title" class="font-display font-bold text-lg">Belum Terhubung ke Kamera</p>
+            <p id="live-empty-desc" class="text-xs text-white/65 leading-relaxed">
+              Pastikan tablet di kamar bayi aktif di Mode Kamera lalu tekan Sambung Ulang.
+            </p>
+          </div>
+          <div class="flex justify-center gap-2.5">
+            <button onclick="handleMonitorConnect()" class="min-h-[46px] px-6 rounded-2xl bg-[#344B3F] hover:bg-[#293C32] text-white text-xs font-semibold inline-flex items-center gap-2 transition">
+              <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+              Sambung Ulang
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Connection Details & Brightness Popover -->
+      <div id="live-details-popover" onclick="event.stopPropagation()" class="hidden absolute top-20 right-4 sm:right-6 z-30 w-64 rounded-2xl bg-black/85 backdrop-blur-xl border border-white/15 p-4 text-xs space-y-2.5">
+        <div class="flex justify-between">
+          <span class="text-white/65">Kualitas</span>
+          <span id="live-detail-quality" class="font-semibold text-white">Siaga</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-white/65">Jalur ICE</span>
+          <span id="live-detail-route" class="font-semibold text-white">—</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-white/65">Latensi (RTT)</span>
+          <span id="live-detail-rtt" class="font-semibold text-white">—</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-white/65">Enkripsi</span>
+          <span class="font-semibold text-[#9CE3BB]">DTLS-SRTP</span>
+        </div>
+        <div class="pt-2 border-t border-white/10 space-y-1.5">
+          <div class="flex justify-between text-[11px] text-white/75">
+            <span>Kecerahan Video</span>
+            <span id="live-brightness-val">100%</span>
+          </div>
+          <input type="range" min="60" max="140" value="100" oninput="setLiveBrightness(this.value)" class="w-full" />
+        </div>
+      </div>
+
+      <!-- Live Quality Menu Popover -->
+      <div id="live-quality-popover" onclick="event.stopPropagation()" class="hidden absolute bottom-28 left-1/2 -translate-x-1/2 z-30 w-64 rounded-2xl bg-black/85 backdrop-blur-xl border border-white/15 p-2 space-y-1">
+        <button onclick="setVideoQuality('auto', true)" class="w-full px-3 py-2.5 rounded-xl text-left text-xs hover:bg-white/10 flex items-center justify-between">
+          <span><strong class="block">Otomatis</strong><span class="text-[10px] text-white/60">Adaptif hingga 720p</span></span>
+        </button>
+        <button onclick="setVideoQuality('low', true)" class="w-full px-3 py-2.5 rounded-xl text-left text-xs hover:bg-white/10 flex items-center justify-between">
+          <span><strong class="block">Rendah</strong><span class="text-[10px] text-white/60">360p • Hemat kuota 4G</span></span>
+        </button>
+        <button onclick="setVideoQuality('medium', true)" class="w-full px-3 py-2.5 rounded-xl text-left text-xs hover:bg-white/10 flex items-center justify-between">
+          <span><strong class="block">Sedang</strong><span class="text-[10px] text-white/60">480p • Seimbang</span></span>
+        </button>
+        <button onclick="setVideoQuality('high', true)" class="w-full px-3 py-2.5 rounded-xl text-left text-xs hover:bg-white/10 flex items-center justify-between">
+          <span><strong class="block">Tinggi</strong><span class="text-[10px] text-white/60">720p HD • Wi-Fi stabil</span></span>
+        </button>
+      </div>
+
+      <!-- Floating Bottom Control Dock -->
+      <div id="live-bottom-bar" onclick="event.stopPropagation()" class="relative z-20 px-4 pb-safe-lg pt-4 bg-gradient-to-t from-black/85 via-black/45 to-transparent flex justify-center transition-opacity duration-300">
+        <div class="w-full max-w-md rounded-[28px] bg-white/10 backdrop-blur-xl border border-white/15 p-2.5 flex items-center justify-around gap-1.5">
+          <!-- 1. Audio ON/OFF -->
+          <button id="btn-live-audio" onclick="toggleMonitorSpeaker()" class="w-14 h-14 rounded-2xl bg-white/10 flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold transition">
+            <i data-lucide="volume-2" class="w-5 h-5"></i>
+            <span>Audio</span>
+          </button>
+
+          <!-- 2. Remote Switch Camera -->
+          <button onclick="sendRemoteSwitchCamera()" class="w-14 h-14 rounded-2xl bg-white/10 hover:bg-white/15 flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold transition">
+            <i data-lucide="switch-camera" class="w-5 h-5"></i>
+            <span>Kamera</span>
+          </button>
+
+          <!-- 3. Prominent Center Hold to Talk -->
+          <button id="btn-live-talk" onpointerdown="startTalkBackUI(event)" onpointerup="stopTalkBackUI()" onpointerleave="stopTalkBackUI()" onpointercancel="stopTalkBackUI()" class="px-4 h-14 rounded-2xl bg-[#344B3F] hover:bg-[#3F5A4C] text-white flex flex-col items-center justify-center gap-0.5 text-[10px] font-bold touch-none transition">
+            <i data-lucide="mic" class="w-5 h-5"></i>
+            <span id="live-talk-label">Tahan Bicara</span>
+          </button>
+
+          <!-- 4. Video Quality -->
+          <button onclick="toggleLiveQualityMenu()" class="w-14 h-14 rounded-2xl bg-white/10 hover:bg-white/15 flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold transition">
+            <i data-lucide="sliders" class="w-5 h-5"></i>
+            <span>Kualitas</span>
+          </button>
+
+          <!-- 5. Fullscreen -->
+          <button onclick="toggleBrowserFullscreen()" class="w-14 h-14 rounded-2xl bg-white/10 hover:bg-white/15 flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold transition">
+            <i data-lucide="maximize-2" class="w-5 h-5"></i>
+            <span>Penuh</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. SCREEN: QR PAIRING -->
+    <section id="screen-pairing" class="hidden screen-fade px-4 sm:px-6 pt-5 md:pt-7 pb-28 md:pb-12 max-w-2xl mx-auto space-y-5">
+      <div>
+        <p class="text-[11px] font-bold uppercase tracking-wider text-[#91A995]">Pairing Perangkat Aman</p>
+        <h1 class="font-display text-2xl font-bold tracking-tight mt-0.5">Hubungkan Tablet &amp; HP Anda</h1>
+      </div>
+
+      <!-- Mode Switcher -->
+      <div class="grid grid-cols-2 p-1.5 rounded-2xl border bg-[#EFEFE9] border-[#E4E7E0] dark:bg-[#1B2420] dark:border-[#2E3C35]">
+        <button id="tab-pair-show" onclick="setPairingTab('show')" class="min-h-[44px] rounded-xl text-xs font-semibold transition">
+          Tampilkan QR (Tablet)
+        </button>
+        <button id="tab-pair-scan" onclick="setPairingTab('scan')" class="min-h-[44px] rounded-xl text-xs font-semibold transition">
+          Pindai QR (HP)
+        </button>
+      </div>
+
+      <!-- Camera Side: Show Expiring QR -->
+      <div id="pair-view-show" class="rounded-[28px] p-6 sm:p-7 bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] shadow-sm flex flex-col items-center text-center space-y-5">
+        <div id="qr-active-wrap" class="flex flex-col items-center space-y-5 w-full">
+          <div id="qr-svg-container" class="p-3.5 bg-white rounded-3xl shadow-sm border border-[#E8EAE6] inline-block"></div>
+
+          <div class="space-y-1.5">
+            <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-[#7B8580] dark:text-[#91A995]">Kode Pairing Sementara</p>
+            <div class="flex items-center justify-center gap-2">
+              <span id="qr-short-code" class="text-3xl font-bold tracking-[0.2em] font-mono">---</span>
+              <button onclick="copyPairingCode()" class="w-10 h-10 rounded-xl hover:bg-[#F5F4EF] dark:hover:bg-[#2A3630] flex items-center justify-center transition" aria-label="Salin kode">
+                <i data-lucide="copy" class="w-4 h-4 text-[#91A995]"></i>
+              </button>
+            </div>
+            <p class="text-xs flex items-center justify-center gap-1.5 text-[#7B8580] dark:text-[#A2B0A9]">
+              <i data-lucide="clock" class="w-3.5 h-3.5 text-[#91A995]"></i>
+              <span>Kedaluwarsa dalam <strong id="qr-countdown">5:00</strong></span>
+              <span>•</span>
+              <span id="qr-sync-status">Token lokal sementara</span>
+            </p>
+          </div>
+
+          <div class="w-full grid grid-cols-2 gap-3 pt-1">
+            <button onclick="regeneratePairingSession()" class="min-h-[48px] rounded-2xl bg-[#F5F4EF] dark:bg-[#26332D] text-[#202B35] dark:text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-[0.98]">
+              <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+              Kode Baru
+            </button>
+            <button onclick="cancelPairingSession()" class="min-h-[48px] rounded-2xl bg-[#D95F5F]/12 text-[#D95F5F] text-xs font-semibold transition active:scale-[0.98]">
+              Batal Pairing
+            </button>
+          </div>
+        </div>
+
+        <div id="qr-expired-wrap" class="hidden py-6 space-y-4">
+          <i data-lucide="clock" class="w-10 h-10 text-[#91A995] mx-auto"></i>
+          <div>
+            <h2 class="font-display font-bold text-lg">Token Pairing Kedaluwarsa</h2>
+            <p class="text-xs mt-1 text-[#7B8580] dark:text-[#A2B0A9]">Demi keamanan, kode QR otomatis kedaluwarsa setelah 5 menit.</p>
+          </div>
+          <button onclick="regeneratePairingSession()" class="min-h-[48px] px-6 rounded-2xl bg-[#344B3F] text-white text-xs font-semibold">
+            Buat Kode QR Baru
+          </button>
+        </div>
+      </div>
+
+      <!-- Monitor Side: Scan QR or Manual Entry -->
+      <div id="pair-view-scan" class="hidden rounded-[28px] p-5 sm:p-6 bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] space-y-5">
+        <!-- Scanner & Manual Entry -->
+        <div id="pair-scan-input-wrap" class="space-y-5">
+          <div id="qr-scanner-box" class="hidden space-y-3">
+            <div class="relative rounded-2xl overflow-hidden bg-black aspect-square max-h-72 mx-auto">
+              <video id="qr-scan-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
+              <div class="absolute inset-8 border-2 border-[#91A995] rounded-2xl pointer-events-none"></div>
+            </div>
+            <button onclick="stopQrScanner()" class="w-full min-h-[46px] rounded-2xl bg-[#D95F5F]/15 text-[#D95F5F] text-xs font-semibold">
+              Tutup Pemindai
+            </button>
+          </div>
+
+          <button id="btn-start-qr-scan" onclick="startQrScanner()" class="w-full min-h-[54px] rounded-2xl bg-[#344B3F] hover:bg-[#293C32] text-white font-semibold text-sm flex items-center justify-center gap-2 transition active:scale-[0.98]">
+            <i data-lucide="qr-code" class="w-5 h-5"></i>
+            Pindai Kode QR dari Tablet
+          </button>
+
+          <p id="qr-scan-error" class="hidden text-xs text-[#D95F5F] bg-[#D95F5F]/10 px-3.5 py-2.5 rounded-xl"></p>
+
+          <form onsubmit="handleManualCodeLookup(event)" class="space-y-2.5 pt-3 border-t border-[#E8EAE6] dark:border-[#2B3832]">
+            <label for="manual-code-input" class="text-xs font-semibold block">Atau masukkan 6 karakter kode secara manual</label>
+            <div class="flex gap-2">
+              <input id="manual-code-input" type="text" maxlength="7" placeholder="Contoh: ABC123" class="flex-1 min-h-[48px] px-4 rounded-2xl text-sm font-mono uppercase tracking-widest border bg-[#F7F6F1] dark:bg-[#141C18] border-[#DCE0D9] dark:border-[#2E3C35] outline-none" />
+              <button type="submit" class="min-h-[48px] px-5 rounded-2xl bg-[#91A995]/25 hover:bg-[#91A995]/35 text-[#344B3F] dark:text-white text-xs font-semibold transition">
+                Cari
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Pending Device Confirmation -->
+        <div id="pair-confirm-wrap" class="hidden space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-[#4D9971]/15 text-[#4D9971] flex items-center justify-center">
+              <i data-lucide="shield-check" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <h2 class="font-display font-bold text-base">Konfirmasi Perangkat Kamera</h2>
+              <p class="text-xs text-[#7B8580] dark:text-[#A2B0A9]">Kode: <span id="pair-confirm-code" class="font-mono font-bold"></span></p>
+            </div>
+          </div>
+
+          <div class="space-y-1.5">
+            <label for="pair-confirm-name" class="text-xs font-semibold">Nama Kamera Bayi</label>
+            <input id="pair-confirm-name" type="text" maxlength="28" class="w-full min-h-[48px] px-4 rounded-2xl text-sm border bg-[#F7F6F1] dark:bg-[#141C18] border-[#DCE0D9] dark:border-[#2E3C35] outline-none" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <button onclick="cancelPendingPairing()" class="min-h-[48px] rounded-2xl bg-[#F3F2EC] dark:bg-[#26332D] text-xs font-semibold">Batal</button>
+            <button onclick="confirmPendingPairing()" class="min-h-[48px] rounded-2xl bg-[#344B3F] hover:bg-[#293C32] text-white text-xs font-semibold">Konfirmasi &amp; Pasangkan</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paired Success State -->
+      <div id="pair-view-success" class="hidden rounded-[28px] p-7 bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] text-center space-y-4 shadow-sm">
+        <div class="w-16 h-16 rounded-full bg-[#4D9971]/15 mx-auto flex items-center justify-center">
+          <i data-lucide="check-circle-2" class="w-8 h-8 text-[#4D9971]"></i>
+        </div>
+        <div>
+          <h2 class="font-display text-lg font-bold">Perangkat Berhasil Dipasangkan</h2>
+          <p class="text-sm mt-1 text-[#7B8580] dark:text-[#A2B0A9]">
+            <strong id="pair-success-name">Kamera Bayi</strong> telah terhubung dengan saluran privat aman.
+          </p>
+        </div>
+        <div class="grid grid-cols-2 gap-3 pt-2">
+          <button onclick="navigate('dashboard')" class="min-h-[48px] rounded-2xl bg-[#F5F4EF] dark:bg-[#26332D] text-xs font-semibold">Ke Beranda</button>
+          <button onclick="navigate(appState.role === 'camera' ? 'camera' : 'monitor')" class="min-h-[48px] rounded-2xl bg-[#344B3F] text-white text-xs font-semibold">Mulai Sekarang</button>
+        </div>
+      </div>
+
+      <!-- Paired Devices List -->
+      <div id="paired-devices-card" class="hidden rounded-[26px] p-5 bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] space-y-3">
+        <h3 class="font-display font-bold text-sm">Perangkat Terpasang</h3>
+        <div id="paired-devices-list" class="space-y-2.5"></div>
+      </div>
+    </section>
+
+    <!-- 8. SCREEN: SETTINGS -->
+    <section id="screen-settings" class="hidden screen-fade px-4 sm:px-6 pt-5 md:pt-7 pb-28 md:pb-12 max-w-3xl mx-auto space-y-5">
+      <div>
+        <p class="text-[11px] font-bold uppercase tracking-wider text-[#91A995]">Pengaturan</p>
+        <h1 class="font-display text-2xl font-bold tracking-tight mt-0.5">Perangkat &amp; Koneksi</h1>
+      </div>
+
+      <!-- Device Identity & Role -->
+      <div class="rounded-[26px] p-5 bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] space-y-4">
+        <h2 class="font-display font-bold text-sm">Perangkat</h2>
+
+        <div class="space-y-1.5">
+          <label for="set-device-name" class="text-xs font-semibold">Nama Perangkat</label>
+          <input id="set-device-name" type="text" oninput="updateDeviceNameFromSettings(this.value)" class="w-full min-h-[46px] px-3.5 rounded-2xl text-xs sm:text-sm border bg-[#F7F6F1] dark:bg-[#141C18] border-[#DCE0D9] dark:border-[#2E3C35] outline-none" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <button id="set-role-camera" onclick="switchRoleFromSettings('camera')" class="min-h-[46px] rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 border transition">
+            <i data-lucide="tablet" class="w-4 h-4"></i>
+            Kamera Bayi
+          </button>
+          <button id="set-role-monitor" onclick="switchRoleFromSettings('monitor')" class="min-h-[46px] rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 border transition">
+            <i data-lucide="smartphone" class="w-4 h-4"></i>
+            Monitor Orang Tua
+          </button>
+        </div>
+      </div>
+
+      <!-- WebRTC Signaling & TURN Config -->
+      <form onsubmit="saveSignalingConfig(event)" class="rounded-[26px] p-5 bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] space-y-4">
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="font-display font-bold text-sm">Koneksi &amp; Signaling WebRTC</h2>
+          <button type="button" onclick="openSetupGuideModal()" class="text-xs font-semibold text-[#344B3F] dark:text-[#91A995] underline underline-offset-2">
+            Panduan Setup Gratis
+          </button>
+        </div>
+
+        <div class="space-y-1.5">
+          <label for="set-firebase-url" class="text-xs font-semibold">URL Firebase Realtime Database</label>
+          <input id="set-firebase-url" type="url" placeholder="https://nama-proyek-default-rtdb.asia-southeast1.firebasedatabase.app" class="w-full min-h-[46px] px-3.5 rounded-2xl text-xs sm:text-sm border bg-[#F7F6F1] dark:bg-[#141C18] border-[#DCE0D9] dark:border-[#2E3C35] outline-none" />
+        </div>
+
+        <div class="space-y-1.5">
+          <label for="set-turn-url" class="text-xs font-semibold">URL Server TURN (Opsional — untuk Data Seluler 4G/5G)</label>
+          <input id="set-turn-url" type="text" placeholder="turn:global.relay.metered.ca:80" class="w-full min-h-[46px] px-3.5 rounded-2xl text-xs sm:text-sm border bg-[#F7F6F1] dark:bg-[#141C18] border-[#DCE0D9] dark:border-[#2E3C35] outline-none" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <input id="set-turn-user" type="text" placeholder="Username TURN" class="w-full min-h-[46px] px-3.5 rounded-2xl text-xs sm:text-sm border bg-[#F7F6F1] dark:bg-[#141C18] border-[#DCE0D9] dark:border-[#2E3C35] outline-none" />
+          <input id="set-turn-cred" type="password" placeholder="Kata Sandi TURN" class="w-full min-h-[46px] px-3.5 rounded-2xl text-xs sm:text-sm border bg-[#F7F6F1] dark:bg-[#141C18] border-[#DCE0D9] dark:border-[#2E3C35] outline-none" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <button type="submit" class="w-full min-h-[48px] rounded-2xl bg-[#344B3F] hover:bg-[#293C32] text-white text-xs font-semibold transition active:scale-[0.98]">
+            Simpan Konfigurasi
+          </button>
+          <button type="button" id="btn-test-signaling" onclick="testSignalingConnection()" class="w-full min-h-[48px] rounded-2xl bg-[#F3F2EC] dark:bg-[#26332D] text-[#344B3F] dark:text-white text-xs font-semibold flex items-center justify-center gap-2 transition active:scale-[0.98]">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>Uji Koneksi Signaling</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Display & Theme -->
+      <div class="rounded-[26px] p-5 bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] space-y-4">
+        <h2 class="font-display font-bold text-sm">Tampilan &amp; Layar</h2>
+        <div class="grid grid-cols-3 gap-2">
+          <button id="theme-btn-light" onclick="setTheme('light')" class="min-h-[46px] rounded-2xl text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+            <i data-lucide="sun" class="w-4 h-4"></i> Terang
+          </button>
+          <button id="theme-btn-dark" onclick="setTheme('dark')" class="min-h-[46px] rounded-2xl text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+            <i data-lucide="moon" class="w-4 h-4"></i> Gelap
+          </button>
+          <button id="theme-btn-auto" onclick="setTheme('auto')" class="min-h-[46px] rounded-2xl text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+            <i data-lucide="monitor" class="w-4 h-4"></i> Otomatis
+          </button>
+        </div>
+      </div>
+
+      <!-- Privacy & Danger Zone -->
+      <div class="rounded-[26px] p-5 bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] space-y-4">
+        <h2 class="font-display font-bold text-sm">Privasi &amp; Keamanan</h2>
+        <p class="text-xs leading-relaxed text-[#7B8580] dark:text-[#A2B0A9]">
+          ARSA BABY MONITOR tidak merekam video secara default, tidak mengunggah rekaman ke cloud, dan memakai token pairing sementara satu kali pakai.
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <button onclick="requestUnpairAll()" class="min-h-[46px] rounded-2xl bg-[#D95F5F]/12 hover:bg-[#D95F5F]/20 text-[#D95F5F] text-xs font-semibold transition">
+            Putus Semua Pairing &amp; Cabut Akses
+          </button>
+          <button onclick="requestResetApp()" class="min-h-[46px] rounded-2xl bg-[#D95F5F] hover:bg-[#C14C4C] text-white text-xs font-semibold transition">
+            Reset Aplikasi
+          </button>
+        </div>
+      </div>
+
+      <!-- About -->
+      <div class="text-center text-xs space-y-1 pt-2 text-[#7B8580] dark:text-[#8F9E96]">
+        <p class="font-semibold">ARSA BABY MONITOR • Versi 1.0 (GitHub Pages)</p>
+        <p>Dekat dengan buah hati, di mana pun Anda berada.</p>
+      </div>
+    </section>
+
+    <!-- 9. SCREEN: CONNECTION STATUS & TROUBLESHOOTING -->
+    <section id="screen-status" class="hidden screen-fade px-4 sm:px-6 pt-5 md:pt-7 pb-28 md:pb-12 max-w-3xl mx-auto space-y-5">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <p class="text-[11px] font-bold uppercase tracking-wider text-[#91A995]">Diagnostik Nyata</p>
+          <h1 class="font-display text-2xl font-bold tracking-tight mt-0.5">Status &amp; Pemecahan Masalah</h1>
+        </div>
+        <span id="stat-status-pill"></span>
+      </div>
+
+      <div class="rounded-[26px] p-5 bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] space-y-3 text-xs">
+        <div class="flex justify-between gap-2">
+          <span class="text-[#7B8580] dark:text-[#A2B0A9]">Lingkungan Aman (HTTPS)</span>
+          <span id="stat-https" class="font-semibold">—</span>
+        </div>
+        <div class="flex justify-between gap-2">
+          <span class="text-[#7B8580] dark:text-[#A2B0A9]">Internet Perangkat</span>
+          <span id="stat-online" class="font-semibold">—</span>
+        </div>
+        <div class="flex justify-between gap-2">
+          <span class="text-[#7B8580] dark:text-[#A2B0A9]">Backend Signaling</span>
+          <span id="stat-signaling" class="font-semibold">—</span>
+        </div>
+        <div class="flex justify-between gap-2">
+          <span class="text-[#7B8580] dark:text-[#A2B0A9]">Kualitas Terukur</span>
+          <span id="stat-quality" class="font-semibold">Belum Terhubung</span>
+        </div>
+        <div class="flex justify-between gap-2">
+          <span class="text-[#7B8580] dark:text-[#A2B0A9]">Jalur Koneksi (ICE)</span>
+          <span id="stat-route" class="font-semibold">Belum Aktif</span>
+        </div>
+        <div class="flex justify-between gap-2">
+          <span class="text-[#7B8580] dark:text-[#A2B0A9]">Latensi (RTT)</span>
+          <span id="stat-rtt" class="font-semibold">—</span>
+        </div>
+        <div class="flex justify-between gap-2">
+          <span class="text-[#7B8580] dark:text-[#A2B0A9]">Status ICE</span>
+          <span id="stat-ice" class="font-semibold uppercase">SIAGA</span>
+        </div>
+        <div id="stat-error-box" class="hidden mt-2 p-3 rounded-xl bg-[#D95F5F]/12 text-[#D95F5F] leading-relaxed"></div>
+      </div>
+
+      <!-- Actionable Troubleshooting Tips -->
+      <div class="rounded-[26px] p-5 bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] space-y-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="signal" class="w-4 h-4 text-[#91A995]"></i>
+          <h2 class="font-display font-bold text-sm">Saran Saat Koneksi Lemah atau Data Seluler</h2>
+        </div>
+        <ul class="space-y-2.5 text-xs leading-relaxed text-[#4E5954] dark:text-[#C2CEC8]">
+          <li class="flex items-start gap-2.5"><span class="w-5 h-5 rounded-full bg-[#91A995]/20 text-[#344B3F] dark:text-[#C5D6C8] flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">1</span>Pastikan tablet di kamar bayi terhubung ke Wi-Fi rumah yang stabil dan cukup dekat dengan router.</li>
+          <li class="flex items-start gap-2.5"><span class="w-5 h-5 rounded-full bg-[#91A995]/20 text-[#344B3F] dark:text-[#C5D6C8] flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">2</span>Turunkan kualitas video ke <strong>Sedang</strong> atau <strong>Rendah</strong> saat memantau di luar rumah dengan data seluler.</li>
+          <li class="flex items-start gap-2.5"><span class="w-5 h-5 rounded-full bg-[#91A995]/20 text-[#344B3F] dark:text-[#C5D6C8] flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">3</span>Biarkan tablet tetap terpasang ke charger dan halaman Mode Kamera tetap terbuka di layar.</li>
+          <li class="flex items-start gap-2.5"><span class="w-5 h-5 rounded-full bg-[#91A995]/20 text-[#344B3F] dark:text-[#C5D6C8] flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">4</span>Operator 4G/5G di Indonesia sering menggunakan CGNAT/Symmetric NAT. Jika koneksi 4G gagal (<em>ICE failed</em>), tambahkan server <strong>TURN relay gratis</strong> (Metered.ca / Cloudflare) di Pengaturan.</li>
+        </ul>
+        <button onclick="navigate('settings')" class="w-full min-h-[46px] mt-2 rounded-2xl bg-[#344B3F] hover:bg-[#293C32] text-white text-xs font-semibold transition">
+          Buka Pengaturan Signaling &amp; TURN
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =====================================================================
+       TOAST NOTIFICATION BANNER
+       ===================================================================== -->
+  <div id="toast-wrap" class="hidden fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-md pointer-events-auto">
+    <div id="toast-box" class="rounded-2xl px-4 py-3.5 shadow-xl border flex items-center justify-between gap-3 text-xs sm:text-sm font-medium bg-[#202B35] text-white border-white/15">
+      <span id="toast-msg" class="leading-snug"></span>
+      <button onclick="hideToast()" class="p-1 rounded-lg hover:bg-white/15 transition shrink-0" aria-label="Tutup">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       CUSTOM CONFIRMATION MODAL (NO NATIVE alert/confirm)
+       ===================================================================== -->
+  <div id="confirm-modal" class="hidden fixed inset-0 z-50 bg-black/55 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="w-full max-w-sm rounded-[28px] p-6 bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] shadow-2xl space-y-4">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-[#D95F5F]/15 text-[#D95F5F] flex items-center justify-center shrink-0">
+          <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 id="confirm-title" class="font-display font-bold text-base">Konfirmasi</h3>
+          <p id="confirm-msg" class="text-xs mt-1 leading-relaxed text-[#7B8580] dark:text-[#A2B0A9]"></p>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 pt-1">
+        <button onclick="closeConfirmModal()" class="min-h-[46px] rounded-2xl bg-[#F3F2EC] dark:bg-[#26332D] text-xs font-semibold">Batal</button>
+        <button id="confirm-ok-btn" class="min-h-[46px] rounded-2xl bg-[#D95F5F] hover:bg-[#C14C4C] text-white text-xs font-semibold">Lanjutkan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       FIREBASE & TURN FREE SETUP GUIDE MODAL
+       ===================================================================== -->
+  <div id="guide-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="w-full max-w-lg max-h-[88vh] overflow-y-auto rounded-[28px] p-6 bg-white dark:bg-[#1B2420] border border-[#E8EAE6] dark:border-[#2E3C35] shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-display font-bold text-base">Panduan Setup Gratis (Firebase RTDB + TURN)</h3>
+        <button onclick="closeSetupGuideModal()" class="w-9 h-9 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div class="text-xs space-y-3 leading-relaxed text-[#4E5954] dark:text-[#B8C4BE]">
+        <p><strong>1. Buat Firebase Realtime Database (Gratis / Spark Plan):</strong><br/>Buka <em>console.firebase.google.com</em> → buat proyek baru → menu <strong>Build → Realtime Database → Create Database</strong> (pilih lokasi <strong>Singapore / asia-southeast1</strong>) → salin URL database dan tempel di kolom Pengaturan pada <strong>Tablet dan HP</strong>.</p>
+        <p><strong>2. Tempel Aturan Keamanan (Tab Rules):</strong></p>
+        <div class="relative">
+          <pre id="firebase-rules-code" class="p-3.5 rounded-2xl text-[11px] font-mono overflow-x-auto bg-[#F7F6F1] dark:bg-[#0F1512] border border-[#E8EAE6] dark:border-[#2B3832]">{
+  "rules": {
+    "arsa_pairing": {
+      "$code": { ".read": true, ".write": true }
+    },
+    "arsa_sessions": {
+      "$roomId": { ".read": true, ".write": true }
+    }
+  }
+}</pre>
+          <button onclick="copyFirebaseRules()" class="absolute top-2.5 right-2.5 px-3 py-1.5 rounded-xl bg-[#344B3F] text-white text-[10px] font-semibold">
+            Salin Rules
+          </button>
+        </div>
+        <p><strong>3. TURN Relay untuk Data Seluler 4G/5G (Opsional):</strong><br/>Jika pemantauan keluar rumah memakai data seluler gagal menembus NAT operator, daftar gratis di <strong>Metered.ca Open Relay</strong> (50 GB/bulan gratis) atau <strong>Cloudflare Calls TURN</strong>, lalu isi URL, Username, dan Kata Sandi TURN di Pengaturan pada kedua perangkat.</p>
+      </div>
+      <button onclick="closeSetupGuideModal()" class="w-full min-h-[46px] rounded-2xl bg-[#344B3F] text-white text-xs font-semibold">
+        Mengerti
+      </button>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       APPLICATION LOGIC (STATE, MEDIA, QR PAIRING, FIREBASE SIGNALING, WEBRTC)
+       ===================================================================== -->
+  <script>
+    /* -----------------------------------------------------------------------
+     * 1. CONSTANTS & PERSISTENT STATE
+     * ----------------------------------------------------------------------- */
+    const STORAGE_KEY = 'arsa_baby_monitor_html_v1';
+    const PAIRING_TTL_SECONDS = 300; // 5 minutes
+
+    const QUALITY_PRESETS = {
+      auto:   { label: 'Otomatis', desc: 'Adaptif (hingga 720p)', width: 1280, height: 720, fps: 24, bitrate: 1100000 },
+      low:    { label: 'Rendah',   desc: '360p • Hemat data seluler', width: 640, height: 360, fps: 15, bitrate: 350000 },
+      medium: { label: 'Sedang',   desc: '480p • Seimbang', width: 854, height: 480, fps: 20, bitrate: 750000 },
+      high:   { label: 'Tinggi',   desc: '720p HD • Wi-Fi stabil', width: 1280, height: 720, fps: 30, bitrate: 1500000 },
+    };
+
+    const DEFAULT_STATE = {
+      onboarded: false,
+      role: null, // 'camera' | 'monitor'
+      deviceName: 'Kamar Si Kecil',
+      cameraFacing: 'environment',
+      videoQuality: 'auto',
+      keepScreenAwake: true,
+      theme: 'auto', // 'light' | 'dark' | 'auto'
+      pairedDevices: [],
+      activeDeviceId: null,
+      signalingConfig: {
+        firebaseDbUrl: '',
+        turnUrl: '',
+        turnUsername: '',
+        turnCredential: '',
+      }
+    };
+
+    let appState = loadState();
+    let currentScreen = !appState.onboarded ? 'welcome' : (!appState.role ? 'setup' : 'dashboard');
+
+    // Runtime media & WebRTC state
+    let localCameraStream = null;
+    let localMicEnabled = true;
+    let localCamEnabled = true;
+    let wakeLockSentinel = null;
+    let audioCtx = null;
+    let audioMeterRaf = null;
+    let qrScannerStream = null;
+    let qrScannerTimer = null;
+
+    let pairingTab = 'show';
+    let pairingSession = null;
+    let pairingCountdownTimer = null;
+    let pairingPollTimer = null;
+    let pendingPairDevice = null;
+
+    let monitorSpeakerOn = true;
+    let isTalkingBack = false;
+    let liveControlsVisible = true;
+    let toastTimer = null;
+    let confirmCallback = null;
+
+    // WebRTC session state
+    const rtc = {
+      pc: null,
+      dc: null,
+      remoteStream: null,
+      talkStream: null,
+      talkSender: null,
+      pollTimer: null,
+      heartbeatTimer: null,
+      statsTimer: null,
+      reconnectTimer: null,
+      status: 'disconnected', // disconnected | waiting | connecting | reconnecting | connected | error
+      iceState: 'siaga',
+      quality: null,
+      routeLabel: null,
+      rttMs: null,
+      lastError: null,
+      activeRoomId: null,
+      activeRole: null,
+      retryCount: 0,
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return structuredClone(DEFAULT_STATE);
+        const parsed = JSON.parse(raw);
+        return {
+          ...DEFAULT_STATE,
+          ...parsed,
+          signalingConfig: { ...DEFAULT_STATE.signalingConfig, ...(parsed.signalingConfig || {}) }
+        };
+      } catch {
+        return structuredClone(DEFAULT_STATE);
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+      } catch {
+        // Ignore storage quota errors
+      }
+    }
+
+    function getActivePairedDevice() {
+      return appState.pairedDevices.find(d => d.id === appState.activeDeviceId) || appState.pairedDevices[0] || null;
+    }
+
+    /* -----------------------------------------------------------------------
+     * 2. FIREBASE REALTIME DATABASE REST SIGNALING HELPER
+     * ----------------------------------------------------------------------- */
+    function getFirebaseBaseUrl() {
+      return (appState.signalingConfig?.firebaseDbUrl || '').trim().replace(/\/+$/, '');
+    }
+
+    function isSignalingConfigured() {
+      return /^https:\/\/[a-zA-Z0-9-]+\.(firebaseio\.com|firebasedatabase\.app)/.test(getFirebaseBaseUrl());
+    }
+
+    const fb = {
+      sessionUrl(roomId, sub = '') {
+        const clean = encodeURIComponent(String(roomId).replace(/[^A-Za-z0-9_-]/g, ''));
+        return `${getFirebaseBaseUrl()}/arsa_sessions/${clean}${sub ? '/' + sub : ''}.json`;
+      },
+      pairingUrl(code) {
+        const clean = encodeURIComponent(String(code).replace(/[^A-Za-z0-9]/g, '').toUpperCase());
+        return `${getFirebaseBaseUrl()}/arsa_pairing/${clean}.json`;
+      },
+      async put(url, data) {
+        const res = await fetch(url, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status} saat menyimpan signaling`);
+        return res.json();
+      },
+      async post(url, data) {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status} saat mengirim ICE`);
+        return res.json();
+      },
+      async get(url) {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status} saat membaca signaling`);
+        return res.json();
+      },
+      async del(url) {
+        try { await fetch(url, { method: 'DELETE' }); } catch {}
+      }
+    };
+
+    function buildIceServers() {
+      const servers = [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' },
+      ];
+      const turnUrl = (appState.signalingConfig?.turnUrl || '').trim();
+      if (turnUrl) {
+        const entry = { urls: turnUrl };
+        if (appState.signalingConfig.turnUsername) entry.username = appState.signalingConfig.turnUsername.trim();
+        if (appState.signalingConfig.turnCredential) entry.credential = appState.signalingConfig.turnCredential.trim();
+        servers.push(entry);
+      }
+      return servers;
+    }
+
+    /* -----------------------------------------------------------------------
+     * 3. UTILITIES: THEME, TOAST, MODAL, CLIPBOARD, FORMATTING
+     * ----------------------------------------------------------------------- */
+    function applyTheme() {
+      const sysDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const isDark = appState.theme === 'dark' || (appState.theme === 'auto' && sysDark);
+      document.documentElement.classList.toggle('dark', isDark);
+
+      ['light', 'dark', 'auto'].forEach(t => {
+        const btn = document.getElementById(`theme-btn-${t}`);
+        if (!btn) return;
+        const active = appState.theme === t;
+        btn.className = `min-h-[46px] rounded-2xl text-xs font-semibold flex items-center justify-center gap-1.5 transition ${
+          active
+            ? 'bg-[#344B3F] text-white'
+            : 'bg-[#F7F6F1] dark:bg-[#141C18] text-[#5C6661] dark:text-[#A2B0A9]'
+        }`;
+      });
+    }
+
+    function setTheme(theme) {
+      appState.theme = theme;
+      saveState();
+      applyTheme();
+    }
+
+    function showToast(msg, type = 'info') {
+      const wrap = document.getElementById('toast-wrap');
+      const box = document.getElementById('toast-box');
+      const text = document.getElementById('toast-msg');
+      text.textContent = msg;
+      const styles = {
+        success: 'bg-[#344B3F] text-white border-[#4D9971]/40',
+        error: 'bg-[#A83838] text-white border-[#D95F5F]/40',
+        info: 'bg-[#202B35] text-white border-white/15',
+      };
+      box.className = `rounded-2xl px-4 py-3.5 shadow-xl border flex items-center justify-between gap-3 text-xs sm:text-sm font-medium ${styles[type] || styles.info}`;
+      wrap.classList.remove('hidden');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(hideToast, 4000);
+    }
+
+    function hideToast() {
+      document.getElementById('toast-wrap').classList.add('hidden');
+    }
+
+    function openConfirmModal(title, message, okLabel, onConfirm) {
+      document.getElementById('confirm-title').textContent = title;
+      document.getElementById('confirm-msg').textContent = message;
+      const okBtn = document.getElementById('confirm-ok-btn');
+      okBtn.textContent = okLabel || 'Lanjutkan';
+      confirmCallback = onConfirm;
+      okBtn.onclick = () => {
+        const cb = confirmCallback;
+        closeConfirmModal();
+        if (cb) cb();
+      };
+      document.getElementById('confirm-modal').classList.remove('hidden');
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('confirm-modal').classList.add('hidden');
+      confirmCallback = null;
+    }
+
+    function openSetupGuideModal() {
+      document.getElementById('guide-modal').classList.remove('hidden');
+    }
+
+    function closeSetupGuideModal() {
+      document.getElementById('guide-modal').classList.add('hidden');
+    }
+
+    function copyTextSafe(text, successMsg) {
+      try {
+        const el = document.createElement('textarea');
+        el.value = text;
+        el.setAttribute('readonly', '');
+        el.style.position = 'fixed';
+        el.style.left = '-9999px';
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        showToast(successMsg || 'Berhasil disalin', 'success');
+      } catch {
+        showToast('Salin teks secara manual.', 'info');
+      }
+    }
+
+    function copyFirebaseRules() {
+      const rules = document.getElementById('firebase-rules-code').textContent;
+      copyTextSafe(rules, 'Aturan Firebase RTDB berhasil disalin');
+    }
+
+    function formatRelativeTime(ts) {
+      if (!ts) return 'Belum pernah';
+      const diff = Math.floor((Date.now() - ts) / 1000);
+      if (diff < 60) return 'Baru saja';
+      if (diff < 3600) return `${Math.floor(diff / 60)} menit lalu`;
+      if (diff < 86400) return `${Math.floor(diff / 3600)} jam lalu`;
+      return new Date(ts).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+    }
+
+    function formatMmSs(sec) {
+      const s = Math.max(0, Math.floor(sec));
+      return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+    }
+
+    function renderStatusPillHtml(status, forceDark = false) {
+      const map = {
+        connected:    { label: 'TERHUBUNG',       dot: 'bg-[#4D9971]', pulse: true,  cls: forceDark ? 'bg-[#4D9971]/20 text-[#9CE3BB] border-[#4D9971]/35' : 'bg-[#4D9971]/10 text-[#2E6B4B] border-[#4D9971]/25 dark:bg-[#4D9971]/15 dark:text-[#9CE3BB] dark:border-[#4D9971]/30' },
+        waiting:      { label: 'MENUNGGU',        dot: 'bg-[#91A995]', pulse: true,  cls: forceDark ? 'bg-[#91A995]/20 text-[#C5D6C8] border-[#91A995]/35' : 'bg-[#91A995]/15 text-[#344B3F] border-[#91A995]/35 dark:bg-[#91A995]/15 dark:text-[#C5D6C8]' },
+        connecting:   { label: 'MENGHUBUNGKAN',   dot: 'bg-[#D6A14A]', pulse: true,  cls: forceDark ? 'bg-[#D6A14A]/20 text-[#F0CB85] border-[#D6A14A]/35' : 'bg-[#D6A14A]/12 text-[#8E621C] border-[#D6A14A]/30 dark:bg-[#D6A14A]/15 dark:text-[#F0CB85]' },
+        reconnecting: { label: 'MENYAMBUNG ULANG',dot: 'bg-[#D6A14A]', pulse: true,  cls: forceDark ? 'bg-[#D6A14A]/20 text-[#F0CB85] border-[#D6A14A]/35' : 'bg-[#D6A14A]/12 text-[#8E621C] border-[#D6A14A]/30 dark:bg-[#D6A14A]/15 dark:text-[#F0CB85]' },
+        error:        { label: 'GAGAL TERHUBUNG', dot: 'bg-[#D95F5F]', pulse: false, cls: forceDark ? 'bg-[#D95F5F]/20 text-[#F3A5A5] border-[#D95F5F]/35' : 'bg-[#D95F5F]/10 text-[#A83838] border-[#D95F5F]/25 dark:bg-[#D95F5F]/15 dark:text-[#F3A5A5]' },
+        disconnected: { label: 'TERPUTUS',        dot: 'bg-[#7B8580]', pulse: false, cls: forceDark ? 'bg-white/10 text-white/75 border-white/15' : 'bg-[#E8EAE6] text-[#5C6661] border-[#DCE0D9] dark:bg-[#2A3630] dark:text-[#A2B0A9] dark:border-[#38463F]' },
+      };
+      const cfg = map[status] || map.disconnected;
+      return `
+        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide border ${cfg.cls}">
+          <span class="relative flex h-2 w-2">
+            ${cfg.pulse ? `<span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${cfg.dot}"></span>` : ''}
+            <span class="relative inline-flex rounded-full h-2 w-2 ${cfg.dot}"></span>
+          </span>
+          ${cfg.label}
+        </span>`;
+    }
+
+    /* -----------------------------------------------------------------------
+     * 4. NAVIGATION & UI SYNCHRONIZATION
+     * ----------------------------------------------------------------------- */
+    const ALL_SCREENS = ['welcome', 'setup', 'dashboard', 'camera', 'monitor', 'live', 'pairing', 'settings', 'status'];
+
+    function navigate(screenId) {
+      if (!ALL_SCREENS.includes(screenId)) screenId = 'dashboard';
+
+      // Cleanup when leaving specific screens
+      if (currentScreen === 'pairing' && screenId !== 'pairing') {
+        stopQrScanner();
+        stopPairingTimers();
+      }
+      if (currentScreen === 'camera' && screenId !== 'camera' && rtc.status === 'disconnected') {
+        // Keep camera running if actively hosting WebRTC; otherwise release hardware cleanly
+        stopLocalCamera();
+      }
+
+      currentScreen = screenId;
+      ALL_SCREENS.forEach(id => {
+        const el = document.getElementById(`screen-${id}`);
+        if (el) el.classList.toggle('hidden', id !== screenId);
+      });
+
+      const showNav = !['welcome', 'setup', 'live'].includes(screenId);
+      document.getElementById('nav-top').classList.toggle('md:block', showNav);
+      document.getElementById('nav-top').classList.toggle('hidden', true);
+      if (showNav) {
+        document.getElementById('nav-bottom').classList.remove('hidden');
+      } else {
+        document.getElementById('nav-bottom').classList.add('hidden');
+      }
+
+      renderNavigation();
+      syncAllUI();
+
+      // Screen entry hooks
+      if (screenId === 'camera') {
+        if (!localCameraStream) startLocalCamera();
+        syncWakeLock();
+      }
+      if (screenId === 'pairing') {
+        setPairingTab(appState.role === 'camera' ? 'show' : 'scan');
+      }
+      if (screenId === 'live') {
+        attachRemoteStreamToVideos();
+        liveControlsVisible = true;
+        updateLiveControlsVisibility();
+      }
+      if (screenId === 'monitor') {
+        attachRemoteStreamToVideos();
+      }
+      if (screenId === 'settings') {
+        populateSettingsInputs();
+      }
+
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      lucide.createIcons();
+    }
+
+    function renderNavigation() {
+      const primary = appState.role === 'camera'
+        ? { id: 'camera', label: 'Kamera', icon: 'camera' }
+        : { id: 'monitor', label: 'Monitor', icon: 'monitor' };
+
+      const items = [
+        { id: 'dashboard', label: 'Beranda', icon: 'home' },
+        primary,
+        { id: 'pairing', label: 'QR Pair', icon: 'qr-code' },
+        { id: 'status', label: 'Status', icon: 'activity' },
+        { id: 'settings', label: 'Pengaturan', icon: 'settings' },
+      ];
+
+      document.getElementById('nav-role-subtitle').textContent =
+        appState.role === 'camera' ? 'Mode Kamera Bayi' : 'Mode Monitor Orang Tua';
+
+      // Top bar links (tablet/desktop)
+      document.getElementById('nav-top-links').innerHTML = items.map(item => {
+        const active = currentScreen === item.id;
+        return `
+          <button onclick="navigate('${item.id}')" class="px-4 h-10 rounded-2xl text-xs font-semibold flex items-center gap-2 transition ${
+            active
+              ? 'bg-[#344B3F] text-white shadow-sm'
+              : 'text-[#5C6661] dark:text-[#A2B0A9] hover:bg-[#EAECE7] dark:hover:bg-[#1E2924]'
+          }">
+            <i data-lucide="${item.icon}" class="w-4 h-4"></i>
+            <span>${item.label}</span>
+          </button>`;
+      }).join('');
+
+      // Bottom bar links (mobile, 54px+ touch targets)
+      document.getElementById('nav-bottom-links').innerHTML = items.map(item => {
+        const active = currentScreen === item.id;
+        return `
+          <button onclick="navigate('${item.id}')" class="flex flex-col items-center justify-center min-h-[56px] rounded-2xl gap-1 transition active:scale-95">
+            <div class="px-3.5 py-1 rounded-full transition ${
+              active ? 'bg-[#344B3F] text-white' : 'text-[#7B8580] dark:text-[#8F9E96]'
+            }">
+              <i data-lucide="${item.icon}" class="w-4 h-4"></i>
+            </div>
+            <span class="text-[10px] font-semibold ${
+              active ? 'text-[#344B3F] dark:text-[#F2F4F0]' : 'text-[#7B8580] dark:text-[#8F9E96]'
+            }">${item.label}</span>
+          </button>`;
+      }).join('');
+    }
+
+    function handleWelcomeStart() {
+      appState.onboarded = true;
+      saveState();
+      navigate('setup');
+    }
+
+    function selectDeviceRole(role) {
+      appState.role = role;
+      appState.deviceName = role === 'camera' ? 'Kamar Si Kecil' : 'HP Orang Tua';
+      saveState();
+      navigate(role === 'camera' ? 'camera' : 'dashboard');
+    }
+
+    function handleDashboardPrimaryAction() {
+      navigate(appState.role === 'camera' ? 'camera' : 'monitor');
+    }
+
+    function syncAllUI() {
+      const configured = isSignalingConfigured();
+      const activeDev = getActivePairedDevice();
+      const isCam = appState.role === 'camera';
+
+      // --- Dashboard ---
+      document.getElementById('dash-prototype-banner').classList.toggle('hidden', configured);
+      document.getElementById('dash-role-label').textContent = isCam ? 'Perangkat Ini (Kamera Bayi)' : 'Kamera Terpasang';
+      document.getElementById('dash-device-name').textContent = isCam
+        ? appState.deviceName
+        : (activeDev ? activeDev.name : 'Belum Ada Kamera Terpasang');
+      document.getElementById('dash-status-pill').innerHTML = renderStatusPillHtml(rtc.status);
+      document.getElementById('dash-quality').textContent = rtc.quality || 'Belum Terhubung';
+      document.getElementById('dash-last-connected').textContent = activeDev?.lastConnectedAt
+        ? formatRelativeTime(activeDev.lastConnectedAt)
+        : 'Belum pernah';
+      document.getElementById('dash-primary-btn-text').textContent = isCam ? 'Buka Mode Kamera' : 'Mulai Memantau';
+      document.getElementById('dash-paired-count').textContent = `${appState.pairedDevices.length} terpasang`;
+
+      const isLive = rtc.status === 'connected';
+      document.getElementById('dash-preview-idle').classList.toggle('hidden', isLive);
+      document.getElementById('dash-preview-live').classList.toggle('hidden', !isLive);
+      document.getElementById('dash-preview-title').textContent = isCam
+        ? 'Pratinjau kamera siap di Mode Kamera'
+        : 'Belum ada siaran aktif';
+      if (isLive) {
+        document.getElementById('dash-preview-route').textContent = rtc.routeLabel || 'WebRTC Terenkripsi';
+      }
+
+      // --- Camera Mode ---
+      document.getElementById('cam-device-name-text').textContent = appState.deviceName;
+      document.getElementById('cam-status-pill').innerHTML = renderStatusPillHtml(rtc.status);
+      document.getElementById('cam-https-warning').classList.toggle('hidden', window.isSecureContext);
+
+      const camPrimary = rtc.status === 'connected'
+        ? 'Terhubung ke Monitor Orang Tua'
+        : (rtc.status === 'waiting' || rtc.status === 'connecting')
+          ? 'Menunggu Monitor Orang Tua'
+          : (localCameraStream ? 'Kamera Siap' : 'Menyiapkan Kamera');
+      document.getElementById('cam-primary-status').textContent = camPrimary;
+
+      // Lens button active styles
+      const rearBtn = document.getElementById('btn-lens-rear');
+      const frontBtn = document.getElementById('btn-lens-front');
+      const activeLensCls = 'bg-[#344B3F] text-white border-[#344B3F]';
+      const inactiveLensCls = 'bg-white dark:bg-[#1B2420] border-[#E8EAE6] dark:border-[#2E3C35] text-[#202B35] dark:text-[#C8D4CD]';
+      rearBtn.className = `min-h-[50px] rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 border transition active:scale-[0.98] ${appState.cameraFacing === 'environment' ? activeLensCls : inactiveLensCls}`;
+      frontBtn.className = `min-h-[50px] rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 border transition active:scale-[0.98] ${appState.cameraFacing === 'user' ? activeLensCls : inactiveLensCls}`;
+
+      // Broadcast card on Camera Mode
+      const bDesc = document.getElementById('cam-broadcast-desc');
+      const bBtn = document.getElementById('btn-cam-broadcast');
+      const bErr = document.getElementById('cam-broadcast-error');
+      const hosting = ['waiting', 'connecting', 'connected', 'reconnecting'].includes(rtc.status) && rtc.activeRole === 'camera';
+
+      if (!configured) {
+        bDesc.textContent = 'Mode Prototipe — koneksi jarak jauh belum dikonfigurasi. Tambahkan URL Firebase Realtime Database di Pengaturan.';
+        bBtn.textContent = 'Atur Signaling Jarak Jauh';
+        bBtn.className = 'w-full min-h-[48px] rounded-2xl bg-[#344B3F] hover:bg-[#293C32] text-white font-semibold text-xs transition active:scale-[0.98]';
+      } else if (hosting) {
+        bDesc.textContent = rtc.status === 'connected'
+          ? `Sedang mengirim video & audio terenkripsi (${rtc.routeLabel || 'WebRTC'}).`
+          : `Saluran ${activeDev?.code || ''} siap. Menunggu permintaan koneksi dari HP Orang Tua...`;
+        bBtn.textContent = 'Hentikan Siaran';
+        bBtn.className = 'w-full min-h-[48px] rounded-2xl bg-[#D95F5F]/15 hover:bg-[#D95F5F]/25 text-[#D95F5F] font-semibold text-xs transition active:scale-[0.98]';
+      } else {
+        bDesc.textContent = 'Signaling sudah siap. Aktifkan sesi agar HP orang tua dapat terhubung otomatis dari mana saja.';
+        bBtn.textContent = 'Siap Terima Monitor Orang Tua';
+        bBtn.className = 'w-full min-h-[48px] rounded-2xl bg-[#344B3F] hover:bg-[#293C32] text-white font-semibold text-xs transition active:scale-[0.98]';
+      }
+      bErr.classList.toggle('hidden', !rtc.lastError);
+      bErr.textContent = rtc.lastError || '';
+
+      // Wake Lock toggle UI
+      const wlBtn = document.getElementById('btn-wakelock-toggle');
+      const wlKnob = document.getElementById('wakelock-knob');
+      wlBtn.className = `w-12 h-7 rounded-full p-1 transition ${appState.keepScreenAwake ? 'bg-[#344B3F]' : 'bg-[#DCE0D9] dark:bg-[#2E3C35]'}`;
+      wlKnob.className = `w-5 h-5 rounded-full bg-white transition-transform ${appState.keepScreenAwake ? 'translate-x-5' : 'translate-x-0'}`;
+
+      // --- Monitor & Live Monitor ---
+      const camTitle = activeDev ? activeDev.name : 'Belum Ada Kamera Terpasang';
+      document.getElementById('mon-camera-name').textContent = camTitle;
+      document.getElementById('live-camera-name').textContent = camTitle;
+      document.getElementById('mon-status-pill').innerHTML = renderStatusPillHtml(rtc.status);
+      document.getElementById('live-status-pill').innerHTML = renderStatusPillHtml(rtc.status, true);
+      document.getElementById('mon-prototype-banner').classList.toggle('hidden', configured);
+
+      const hasRemoteVideo = rtc.status === 'connected' && Boolean(rtc.remoteStream);
+      document.getElementById('monitor-video').classList.toggle('hidden', !hasRemoteVideo);
+      document.getElementById('mon-open-live-btn').classList.toggle('hidden', !hasRemoteVideo);
+      document.getElementById('mon-empty-state').classList.toggle('hidden', hasRemoteVideo);
+
+      document.getElementById('live-video').classList.toggle('hidden', !hasRemoteVideo);
+      document.getElementById('live-empty-state').classList.toggle('hidden', hasRemoteVideo);
+
+      const emptyTitle = rtc.status === 'connecting'
+        ? 'Menghubungkan ke kamera...'
+        : rtc.status === 'reconnecting'
+          ? 'Koneksi terganggu, menyambung ulang...'
+          : 'Siaran Langsung Belum Terhubung';
+      const emptyDesc = rtc.lastError || (configured
+        ? 'Pastikan tablet kamar bayi aktif di Mode Kamera lalu tekan Hubungkan.'
+        : 'Mode Prototipe — siaran jarak jauh membutuhkan URL Firebase RTDB di Pengaturan.');
+      document.getElementById('mon-empty-title').textContent = emptyTitle;
+      document.getElementById('mon-empty-desc').textContent = emptyDesc;
+      document.getElementById('live-empty-title').textContent = emptyTitle;
+      document.getElementById('live-empty-desc').textContent = emptyDesc;
+      document.getElementById('mon-connect-btn-text').textContent = rtc.status === 'error' ? 'Sambung Ulang' : 'Hubungkan Sekarang';
+      document.getElementById('mon-reconnect-label').textContent = rtc.status === 'connected' ? 'Putuskan' : 'Sambung Ulang';
+
+      const qualSummary = rtc.quality
+        ? `${rtc.quality}${rtc.routeLabel ? ' • ' + rtc.routeLabel : ''}`
+        : 'Belum Terhubung';
+      document.getElementById('mon-route-quality').textContent = qualSummary;
+      document.getElementById('live-quality-badge').textContent = rtc.quality ? `• ${rtc.quality}` : '';
+      document.getElementById('live-detail-quality').textContent = rtc.quality || 'Siaga';
+      document.getElementById('live-detail-route').textContent = rtc.routeLabel || '—';
+      document.getElementById('live-detail-rtt').textContent = rtc.rttMs != null ? `${rtc.rttMs} ms` : '—';
+
+      // Video quality buttons
+      const qPreset = QUALITY_PRESETS[appState.videoQuality] || QUALITY_PRESETS.auto;
+      document.getElementById('mon-quality-desc').textContent = qPreset.desc;
+      document.querySelectorAll('#mon-quality-buttons button').forEach(btn => {
+        const active = btn.dataset.q === appState.videoQuality;
+        btn.className = `min-h-[42px] rounded-xl text-xs font-semibold transition ${
+          active
+            ? 'bg-[#344B3F] text-white'
+            : 'bg-[#F5F4EF] dark:bg-[#25312B] text-[#5C6661] dark:text-[#A2B0A9]'
+        }`;
+      });
+
+      // Speaker button states
+      const spkBtn = document.getElementById('btn-mon-speaker');
+      document.getElementById('mon-speaker-label').textContent = monitorSpeakerOn ? 'Speaker On' : 'Bisukan';
+      spkBtn.className = `min-h-[58px] rounded-2xl border flex flex-col items-center justify-center gap-1 text-xs font-semibold transition active:scale-[0.98] ${
+        monitorSpeakerOn
+          ? 'bg-white dark:bg-[#1B2420] border-[#E8EAE6] dark:border-[#2E3C35] text-[#202B35] dark:text-white'
+          : 'bg-[#D95F5F]/12 border-[#D95F5F]/30 text-[#D95F5F]'
+      }`;
+      const liveAudBtn = document.getElementById('btn-live-audio');
+      liveAudBtn.className = `w-14 h-14 rounded-2xl flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold transition ${
+        monitorSpeakerOn ? 'bg-white/10 text-white' : 'bg-[#D95F5F]/30 text-[#FFB8B8]'
+      }`;
+
+      // --- Settings Role Buttons ---
+      const setCam = document.getElementById('set-role-camera');
+      const setMon = document.getElementById('set-role-monitor');
+      if (setCam && setMon) {
+        setCam.className = `min-h-[46px] rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 border transition ${
+          isCam ? 'bg-[#344B3F] text-white border-[#344B3F]' : 'bg-[#F7F6F1] dark:bg-[#141C18] border-[#DCE0D9] dark:border-[#2E3C35] text-[#5C6661] dark:text-[#A2B0A9]'
+        }`;
+        setMon.className = `min-h-[46px] rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 border transition ${
+          !isCam ? 'bg-[#344B3F] text-white border-[#344B3F]' : 'bg-[#F7F6F1] dark:bg-[#141C18] border-[#DCE0D9] dark:border-[#2E3C35] text-[#5C6661] dark:text-[#A2B0A9]'
+        }`;
+      }
+
+      // --- Connection Status Screen ---
+      document.getElementById('stat-status-pill').innerHTML = renderStatusPillHtml(rtc.status);
+      const httpsEl = document.getElementById('stat-https');
+      httpsEl.textContent = window.isSecureContext ? 'Aktif (HTTPS)' : 'Tidak Aman (HTTP)';
+      httpsEl.className = `font-semibold ${window.isSecureContext ? 'text-[#4D9971]' : 'text-[#D95F5F]'}`;
+
+      const onlineEl = document.getElementById('stat-online');
+      onlineEl.textContent = navigator.onLine ? 'Terhubung' : 'Offline';
+      onlineEl.className = `font-semibold ${navigator.onLine ? 'text-[#4D9971]' : 'text-[#D95F5F]'}`;
+
+      document.getElementById('stat-signaling').textContent = configured
+        ? 'Terkonfigurasi (Firebase RTDB)'
+        : 'Mode Prototipe (Belum Diatur)';
+      document.getElementById('stat-quality').textContent = rtc.quality || 'Belum Terhubung';
+      document.getElementById('stat-route').textContent = rtc.routeLabel || 'Belum Aktif';
+      document.getElementById('stat-rtt').textContent = rtc.rttMs != null ? `${rtc.rttMs} ms` : '—';
+      document.getElementById('stat-ice').textContent = rtc.iceState || 'SIAGA';
+
+      const statErr = document.getElementById('stat-error-box');
+      statErr.classList.toggle('hidden', !rtc.lastError);
+      statErr.innerHTML = rtc.lastError ? `<strong>Catatan Terakhir:</strong> ${rtc.lastError}` : '';
+
+      renderPairedDevicesList();
+    }
+
+    /* -----------------------------------------------------------------------
+     * 5. CAMERA MODE HARDWARE (getUserMedia, AUDIO METER, WAKE LOCK, TELEMETRY)
+     * ----------------------------------------------------------------------- */
+    async function startLocalCamera(targetFacing = appState.cameraFacing) {
+      const videoEl = document.getElementById('camera-preview');
+      const placeholder = document.getElementById('camera-placeholder');
+      const msgEl = document.getElementById('camera-placeholder-msg');
+      const retryBtn = document.getElementById('camera-retry-btn');
+
+      if (!navigator.mediaDevices?.getUserMedia) {
+        msgEl.textContent = 'Browser ini tidak mendukung akses kamera. Gunakan Google Chrome terbaru melalui HTTPS.';
+        retryBtn.classList.remove('hidden');
+        return;
+      }
+
+      stopLocalCamera();
+      placeholder.classList.remove('hidden');
+      videoEl.classList.add('hidden');
+      retryBtn.classList.add('hidden');
+      msgEl.textContent = 'Mengaktifkan kamera perangkat...';
+
+      const preset = QUALITY_PRESETS[appState.videoQuality] || QUALITY_PRESETS.auto;
+      let stream = null;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { exact: targetFacing },
+            width: { ideal: preset.width },
+            height: { ideal: preset.height },
+            frameRate: { ideal: preset.fps },
+          },
+          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+        });
+      } catch {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: { ideal: targetFacing },
+              width: { ideal: preset.width },
+              height: { ideal: preset.height },
+            },
+            audio: { echoCancellation: true, noiseSuppression: true },
+          });
+        } catch (err) {
+          const friendly =
+            err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError'
+              ? 'Izin kamera atau mikrofon ditolak. Buka pengaturan situs Chrome lalu izinkan Kamera dan Mikrofon.'
+              : err.name === 'NotFoundError'
+                ? 'Kamera atau mikrofon tidak ditemukan pada perangkat ini.'
+                : err.name === 'NotReadableError'
+                  ? 'Kamera sedang digunakan aplikasi lain. Tutup aplikasi lain lalu coba lagi.'
+                  : `Gagal mengakses kamera: ${err.message || err.name}`;
+          msgEl.textContent = friendly;
+          retryBtn.classList.remove('hidden');
+          return;
+        }
+      }
+
+      localCameraStream = stream;
+      const vTrack = stream.getVideoTracks()[0];
+      const aTrack = stream.getAudioTracks()[0];
+      if (vTrack) vTrack.enabled = localCamEnabled;
+      if (aTrack) aTrack.enabled = localMicEnabled;
+
+      videoEl.srcObject = stream;
+      videoEl.classList.toggle('scale-x-[-1]', targetFacing === 'user');
+      videoEl.classList.toggle('hidden', !localCamEnabled);
+      placeholder.classList.toggle('hidden', localCamEnabled);
+      videoEl.play().catch(() => {});
+
+      // Active camera badge & real track telemetry
+      document.getElementById('cam-active-badge').classList.toggle('hidden', !localCamEnabled);
+      if (vTrack && vTrack.getSettings) {
+        const s = vTrack.getSettings();
+        const infoEl = document.getElementById('cam-track-info');
+        infoEl.textContent = `${s.width || preset.width}×${s.height || preset.height} • ${Math.round(s.frameRate || preset.fps)}fps`;
+        infoEl.classList.remove('hidden');
+      }
+
+      document.getElementById('cam-perm-text').textContent = 'Diizinkan / Diizinkan';
+      startAudioLevelMeter(stream);
+      replaceWebRtcCameraTracks(stream);
+      syncAllUI();
+    }
+
+    function stopLocalCamera() {
+      stopAudioLevelMeter();
+      if (localCameraStream) {
+        localCameraStream.getTracks().forEach(t => t.stop());
+        localCameraStream = null;
+      }
+      document.getElementById('cam-active-badge').classList.add('hidden');
+      document.getElementById('cam-track-info').classList.add('hidden');
+      document.getElementById('cam-audio-meter-wrap').classList.add('hidden');
+    }
+
+    function switchCameraLens(targetFacing) {
+      if (targetFacing === appState.cameraFacing && localCameraStream) return;
+      appState.cameraFacing = targetFacing;
+      saveState();
+      startLocalCamera(targetFacing);
+    }
+
+    function toggleLocalMic() {
+      localMicEnabled = !localMicEnabled;
+      if (localCameraStream) {
+        localCameraStream.getAudioTracks().forEach(t => { t.enabled = localMicEnabled; });
+      }
+      const btn = document.getElementById('btn-toggle-mic');
+      btn.className = `min-h-[50px] rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 border transition active:scale-[0.98] ${
+        localMicEnabled
+          ? 'bg-white dark:bg-[#1B2420] border-[#E8EAE6] dark:border-[#2E3C35] text-[#202B35] dark:text-white'
+          : 'bg-[#D95F5F]/12 border-[#D95F5F]/30 text-[#D95F5F]'
+      }`;
+      btn.innerHTML = `<i data-lucide="${localMicEnabled ? 'mic' : 'mic-off'}" class="w-4 h-4 ${localMicEnabled ? 'text-[#4D9971]' : ''}"></i><span>${localMicEnabled ? 'Mikrofon On' : 'Mikrofon Off'}</span>`;
+      document.getElementById('cam-audio-label').textContent = localMicEnabled ? 'Mikrofon Aktif' : 'Mikrofon Mati';
+      lucide.createIcons();
+    }
+
+    function toggleLocalCam() {
+      localCamEnabled = !localCamEnabled;
+      if (localCameraStream) {
+        localCameraStream.getVideoTracks().forEach(t => { t.enabled = localCamEnabled; });
+      }
+      const btn = document.getElementById('btn-toggle-cam');
+      btn.className = `min-h-[50px] rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 border transition active:scale-[0.98] ${
+        localCamEnabled
+          ? 'bg-white dark:bg-[#1B2420] border-[#E8EAE6] dark:border-[#2E3C35] text-[#202B35] dark:text-white'
+          : 'bg-[#D95F5F]/12 border-[#D95F5F]/30 text-[#D95F5F]'
+      }`;
+      btn.innerHTML = `<i data-lucide="${localCamEnabled ? 'video' : 'video-off'}" class="w-4 h-4 ${localCamEnabled ? 'text-[#4D9971]' : ''}"></i><span>${localCamEnabled ? 'Kamera On' : 'Kamera Off'}</span>`;
+      document.getElementById('camera-preview').classList.toggle('hidden', !localCamEnabled);
+      document.getElementById('camera-placeholder').classList.toggle('hidden', localCamEnabled);
+      document.getElementById('camera-placeholder-msg').textContent = 'Kamera dinonaktifkan sementara';
+      document.getElementById('cam-active-badge').classList.toggle('hidden', !localCamEnabled);
+      lucide.createIcons();
+    }
+
+    function startAudioLevelMeter(stream) {
+      stopAudioLevelMeter();
+      if (!stream.getAudioTracks().length) return;
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+        audioCtx = new Ctx();
+        const src = audioCtx.createMediaStreamSource(stream);
+        const analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
+        src.connect(analyser);
+        const buf = new Uint8Array(analyser.frequencyBinCount);
+        document.getElementById('cam-audio-meter-wrap').classList.remove('hidden');
+
+        const tick = () => {
+          analyser.getByteTimeDomainData(buf);
+          let sum = 0;
+          for (let i = 0; i < buf.length; i++) {
+            const v = (buf[i] - 128) / 128;
+            sum += v * v;
+          }
+          const level = localMicEnabled ? Math.min(100, Math.round(Math.sqrt(sum / buf.length) * 280)) : 0;
+          document.getElementById('cam-audio-bar').style.width = `${level}%`;
+          audioMeterRaf = requestAnimationFrame(tick);
+        };
+        tick();
+      } catch {
+        // Optional meter
+      }
+    }
+
+    function stopAudioLevelMeter() {
+      if (audioMeterRaf) { cancelAnimationFrame(audioMeterRaf); audioMeterRaf = null; }
+      if (audioCtx) { audioCtx.close().catch(() => {}); audioCtx = null; }
+    }
+
+    async function syncWakeLock() {
+      const label = document.getElementById('cam-wakelock-status');
+      if (!appState.keepScreenAwake) {
+        if (wakeLockSentinel) { wakeLockSentinel.release().catch(() => {}); wakeLockSentinel = null; }
+        label.textContent = 'Nonaktif';
+        return;
+      }
+      if (!('wakeLock' in navigator)) {
+        label.textContent = 'Wake Lock tidak didukung browser';
+        return;
+      }
+      try {
+        wakeLockSentinel = await navigator.wakeLock.request('screen');
+        label.textContent = 'Wake Lock aktif';
+        wakeLockSentinel.addEventListener('release', () => {
+          label.textContent = appState.keepScreenAwake ? 'Siaga (kembali aktif saat dibuka)' : 'Nonaktif';
+        });
+      } catch {
+        label.textContent = 'Wake Lock tidak tersedia';
+      }
+    }
+
+    function toggleKeepScreenAwake() {
+      appState.keepScreenAwake = !appState.keepScreenAwake;
+      saveState();
+      syncWakeLock();
+      syncAllUI();
+    }
+
+    function toggleCameraNameEdit(editing) {
+      document.getElementById('cam-name-btn').classList.toggle('hidden', editing);
+      document.getElementById('cam-name-form').classList.toggle('hidden', !editing);
+      if (editing) {
+        const inp = document.getElementById('cam-name-input');
+        inp.value = appState.deviceName;
+        inp.focus();
+      }
+    }
+
+    function saveCameraName(e) {
+      e.preventDefault();
+      const val = document.getElementById('cam-name-input').value.trim();
+      appState.deviceName = val || 'Kamar Si Kecil';
+      saveState();
+      toggleCameraNameEdit(false);
+      syncAllUI();
+    }
+
+    function initDeviceTelemetry() {
+      const updateNet = () => {
+        const el = document.getElementById('cam-network-text');
+        if (el) {
+          el.innerHTML = navigator.onLine
+            ? '<span class="text-[#4D9971]">● Online</span>'
+            : '<span class="text-[#D95F5F]">● Offline</span>';
+        }
+        syncAllUI();
+      };
+      window.addEventListener('online', () => {
+        updateNet();
+        // Auto-recover monitor when switching Wi-Fi -> Mobile Data
+        if (rtc.activeRole === 'monitor' && rtc.activeRoomId && (rtc.status === 'reconnecting' || rtc.status === 'error')) {
+          connectAsMonitor(rtc.activeRoomId, true);
+        }
+      });
+      window.addEventListener('offline', updateNet);
+      updateNet();
+
+      if (navigator.getBattery) {
+        navigator.getBattery().then(b => {
+          const syncBat = () => {
+            document.getElementById('cam-battery-row').classList.remove('hidden');
+            document.getElementById('cam-battery-text').textContent = `${Math.round(b.level * 100)}% ${b.charging ? '(Mengisi)' : ''}`;
+          };
+          syncBat();
+          b.addEventListener('levelchange', syncBat);
+          b.addEventListener('chargingchange', syncBat);
+        }).catch(() => {});
+      }
+
+      if (navigator.permissions?.query) {
+        Promise.all([
+          navigator.permissions.query({ name: 'camera' }),
+          navigator.permissions.query({ name: 'microphone' }),
+        ]).then(([cam, mic]) => {
+          const mapP = s => s === 'granted' ? 'Diizinkan' : s === 'denied' ? 'Ditolak' : 'Menunggu';
+          const renderP = () => {
+            document.getElementById('cam-perm-text').textContent = `${mapP(cam.state)} / ${mapP(mic.state)}`;
+          };
+          renderP();
+          cam.onchange = renderP;
+          mic.onchange = renderP;
+        }).catch(() => {
+          document.getElementById('cam-perm-text').textContent = 'Siap diminta';
+        });
+      }
+    }
+
+    /* -----------------------------------------------------------------------
+     * 6. SECURE QR PAIRING (5-MIN ONE-TIME TOKEN + SCANNER + MANUAL CODE)
+     * ----------------------------------------------------------------------- */
+    function createPairingSessionObj() {
+      const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      const bytes = new Uint8Array(24);
+      if (crypto?.getRandomValues) crypto.getRandomValues(bytes);
+      else for (let i = 0; i < 24; i++) bytes[i] = Math.floor(Math.random() * 256);
+
+      let code = '';
+      for (let i = 0; i < 6; i++) code += alphabet[bytes[i] % alphabet.length];
+      const token = Array.from(bytes.slice(6, 12)).map(b => b.toString(16).padStart(2, '0')).join('');
+      const roomId = 'arsa_' + Array.from(bytes.slice(12, 22)).map(b => b.toString(16).padStart(2, '0')).join('');
+      const safeName = (appState.deviceName || 'Kamera Bayi').slice(0, 16).replace(/[&=?]/g, '');
+
+      return {
+        code,
+        displayCode: `${code.slice(0, 3)}-${code.slice(3)}`,
+        token,
+        roomId,
+        deviceName: safeName,
+        expiresAt: Date.now() + PAIRING_TTL_SECONDS * 1000,
+        qrPayload: `arsa://p?c=${code}&t=${token}&n=${encodeURIComponent(safeName)}`
+      };
+    }
+
+    function stopPairingTimers() {
+      if (pairingCountdownTimer) { clearInterval(pairingCountdownTimer); pairingCountdownTimer = null; }
+      if (pairingPollTimer) { clearInterval(pairingPollTimer); pairingPollTimer = null; }
+    }
+
+    function setPairingTab(tab) {
+      pairingTab = tab;
+      stopQrScanner();
+      stopPairingTimers();
+      document.getElementById('pair-view-success').classList.add('hidden');
+      document.getElementById('pair-view-show').classList.toggle('hidden', tab !== 'show');
+      document.getElementById('pair-view-scan').classList.toggle('hidden', tab !== 'scan');
+
+      const showBtn = document.getElementById('tab-pair-show');
+      const scanBtn = document.getElementById('tab-pair-scan');
+      showBtn.className = `min-h-[44px] rounded-xl text-xs font-semibold transition ${tab === 'show' ? 'bg-[#344B3F] text-white shadow-sm' : 'text-[#5C6661] dark:text-[#A2B0A9]'}`;
+      scanBtn.className = `min-h-[44px] rounded-xl text-xs font-semibold transition ${tab === 'scan' ? 'bg-[#344B3F] text-white shadow-sm' : 'text-[#5C6661] dark:text-[#A2B0A9]'}`;
+
+      if (tab === 'show') {
+        if (!pairingSession || Date.now() >= pairingSession.expiresAt) {
+          regeneratePairingSession();
+        } else {
+          renderQrSessionUI();
+        }
+      }
+      renderPairedDevicesList();
+    }
+
+    function regeneratePairingSession() {
+      if (pairingSession && isSignalingConfigured()) {
+        fb.del(fb.pairingUrl(pairingSession.code));
+      }
+      stopPairingTimers();
+      pairingSession = createPairingSessionObj();
+      renderQrSessionUI();
+      publishPairingSessionToFirebase();
+    }
+
+    function renderQrSessionUI() {
+      const container = document.getElementById('qr-svg-container');
+      document.getElementById('qr-active-wrap').classList.remove('hidden');
+      document.getElementById('qr-expired-wrap').classList.add('hidden');
+      document.getElementById('qr-short-code').textContent = pairingSession.displayCode;
+
+      try {
+        if (typeof qrcode === 'function') {
+          const qr = qrcode(0, 'M');
+          qr.addData(pairingSession.qrPayload);
+          qr.make();
+          container.innerHTML = qr.createSvgTag({ cellSize: 5, margin: 3 });
+          const svg = container.querySelector('svg');
+          if (svg) {
+            svg.setAttribute('width', '210');
+            svg.setAttribute('height', '210');
+            svg.classList.add('rounded-xl', 'block');
+          }
+        } else {
+          container.innerHTML = `<div class="w-[210px] h-[210px] flex items-center justify-center text-xs text-[#7B8580] p-4">QR offline. Gunakan kode manual: ${pairingSession.displayCode}</div>`;
+        }
+      } catch {
+        container.innerHTML = `<div class="w-[210px] h-[210px] flex items-center justify-center text-xs text-[#7B8580] p-4">Gunakan kode manual: ${pairingSession.displayCode}</div>`;
+      }
+
+      const updateTimer = () => {
+        const rem = Math.max(0, Math.ceil((pairingSession.expiresAt - Date.now()) / 1000));
+        document.getElementById('qr-countdown').textContent = formatMmSs(rem);
+        if (rem <= 0) {
+          stopPairingTimers();
+          if (isSignalingConfigured()) fb.del(fb.pairingUrl(pairingSession.code));
+          document.getElementById('qr-active-wrap').classList.add('hidden');
+          document.getElementById('qr-expired-wrap').classList.remove('hidden');
+        }
+      };
+      updateTimer();
+      pairingCountdownTimer = setInterval(updateTimer, 1000);
+    }
+
+    async function publishPairingSessionToFirebase() {
+      const syncEl = document.getElementById('qr-sync-status');
+      if (!isSignalingConfigured()) {
+        syncEl.textContent = 'Token lokal (Mode Prototipe)';
+        return;
+      }
+      try {
+        syncEl.textContent = 'Menyinkronkan...';
+        await fb.put(fb.pairingUrl(pairingSession.code), {
+          deviceName: appState.deviceName,
+          token: pairingSession.token,
+          roomId: pairingSession.roomId,
+          expiresAt: pairingSession.expiresAt,
+          status: 'pending',
+        });
+        syncEl.textContent = 'Siap dipindai HP Orang Tua';
+
+        pairingPollTimer = setInterval(async () => {
+          if (!pairingSession || Date.now() > pairingSession.expiresAt) {
+            stopPairingTimers();
+            return;
+          }
+          try {
+            const rec = await fb.get(fb.pairingUrl(pairingSession.code));
+            if (rec && rec.status === 'paired') {
+              stopPairingTimers();
+              fb.del(fb.pairingUrl(pairingSession.code));
+              const dev = {
+                id: `dev_${Date.now()}`,
+                code: pairingSession.code,
+                roomId: pairingSession.roomId,
+                name: rec.monitorName || 'Monitor Orang Tua',
+                pairedAt: Date.now(),
+                lastConnectedAt: null,
+              };
+              savePairedDevice(dev);
+              showPairedSuccess(dev.name);
+            }
+          } catch {}
+        }, 2000);
+      } catch {
+        syncEl.textContent = 'Gagal sinkron ke signaling';
+      }
+    }
+
+    function cancelPairingSession() {
+      if (pairingSession && isSignalingConfigured()) {
+        fb.del(fb.pairingUrl(pairingSession.code));
+      }
+      stopPairingTimers();
+      navigate(appState.role === 'camera' ? 'camera' : 'dashboard');
+    }
+
+    function copyPairingCode() {
+      if (pairingSession) copyTextSafe(pairingSession.code, 'Kode pairing berhasil disalin');
+    }
+
+    function parseQrString(raw) {
+      try {
+        if (raw.startsWith('arsa://p')) {
+          const url = new URL(raw.replace('arsa://', 'https://arsa.local/'));
+          const code = (url.searchParams.get('c') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+          const token = url.searchParams.get('t') || '';
+          const name = decodeURIComponent(url.searchParams.get('n') || 'Kamera Kamar Bayi');
+          if (code.length === 6) return { code, token, name };
+        }
+        const cleaned = raw.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+        if (cleaned.length === 6) return { code: cleaned, token: '', name: 'Kamera Kamar Bayi' };
+      } catch {}
+      return null;
+    }
+
+    async function startQrScanner() {
+      const errEl = document.getElementById('qr-scan-error');
+      errEl.classList.add('hidden');
+      if (!navigator.mediaDevices?.getUserMedia) {
+        errEl.textContent = 'Kamera tidak tersedia. Masukkan 6 karakter kode secara manual di bawah.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      try {
+        qrScannerStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' } },
+          audio: false,
+        });
+        const v = document.getElementById('qr-scan-video');
+        v.srcObject = qrScannerStream;
+        v.play().catch(() => {});
+        document.getElementById('qr-scanner-box').classList.remove('hidden');
+        document.getElementById('btn-start-qr-scan').classList.add('hidden');
+
+        if ('BarcodeDetector' in window) {
+          const detector = new window.BarcodeDetector({ formats: ['qr_code'] });
+          qrScannerTimer = setInterval(async () => {
+            if (v.readyState < 2) return;
+            try {
+              const found = await detector.detect(v);
+              if (found.length > 0 && found[0].rawValue) {
+                const parsed = parseQrString(found[0].rawValue);
+                if (parsed) {
+                  stopQrScanner();
+                  openPendingPairConfirm(parsed);
+                }
+              }
+            } catch {}
+          }, 450);
+        } else {
+          errEl.textContent = 'Pemindai QR otomatis belum didukung browser ini. Silakan ketik 6 karakter kode pairing secara manual.';
+          errEl.classList.remove('hidden');
+        }
+      } catch {
+        errEl.textContent = 'Izin kamera ditolak. Masukkan 6 karakter kode pairing secara manual.';
+        errEl.classList.remove('hidden');
+      }
+    }
+
+    function stopQrScanner() {
+      if (qrScannerTimer) { clearInterval(qrScannerTimer); qrScannerTimer = null; }
+      if (qrScannerStream) {
+        qrScannerStream.getTracks().forEach(t => t.stop());
+        qrScannerStream = null;
+      }
+      document.getElementById('qr-scanner-box').classList.add('hidden');
+      document.getElementById('btn-start-qr-scan').classList.remove('hidden');
+    }
+
+    async function handleManualCodeLookup(e) {
+      e.preventDefault();
+      const input = document.getElementById('manual-code-input');
+      const cleaned = input.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+      if (cleaned.length !== 6) {
+        showToast('Masukkan lengkap 6 karakter kode pairing.', 'error');
+        return;
+      }
+      if (isSignalingConfigured()) {
+        try {
+          const rec = await fb.get(fb.pairingUrl(cleaned));
+          if (!rec) {
+            showToast('Kode pairing tidak ditemukan atau sudah kedaluwarsa di tablet.', 'error');
+            return;
+          }
+          if (rec.expiresAt && Date.now() > rec.expiresAt) {
+            showToast('Kode pairing sudah kedaluwarsa. Buat kode baru di tablet.', 'error');
+            return;
+          }
+          openPendingPairConfirm({
+            code: cleaned,
+            token: rec.token || '',
+            roomId: rec.roomId || cleaned,
+            name: rec.deviceName || 'Kamera Kamar Bayi',
+          });
+          return;
+        } catch (err) {
+          showToast(err.message || 'Gagal memeriksa kode ke signaling.', 'error');
+          return;
+        }
+      }
+      openPendingPairConfirm({ code: cleaned, token: '', roomId: cleaned, name: 'Kamera Kamar Bayi' });
+    }
+
+    function openPendingPairConfirm(info) {
+      pendingPairDevice = info;
+      document.getElementById('pair-confirm-code').textContent = info.code;
+      document.getElementById('pair-confirm-name').value = info.name || 'Kamera Kamar Bayi';
+      document.getElementById('pair-scan-input-wrap').classList.add('hidden');
+      document.getElementById('pair-confirm-wrap').classList.remove('hidden');
+    }
+
+    function cancelPendingPairing() {
+      pendingPairDevice = null;
+      document.getElementById('pair-confirm-wrap').classList.add('hidden');
+      document.getElementById('pair-scan-input-wrap').classList.remove('hidden');
+    }
+
+    async function confirmPendingPairing() {
+      if (!pendingPairDevice) return;
+      let finalRoomId = pendingPairDevice.roomId || pendingPairDevice.code;
+      let finalName = document.getElementById('pair-confirm-name').value.trim() || 'Kamera Kamar Bayi';
+
+      if (isSignalingConfigured()) {
+        try {
+          const rec = await fb.get(fb.pairingUrl(pendingPairDevice.code));
+          if (!rec) {
+            showToast('Sesi pairing tidak ditemukan atau sudah dipakai.', 'error');
+            return;
+          }
+          if (rec.expiresAt && Date.now() > rec.expiresAt) {
+            showToast('Token pairing sudah kedaluwarsa.', 'error');
+            return;
+          }
+          if (pendingPairDevice.token && rec.token && pendingPairDevice.token !== rec.token) {
+            showToast('Token keamanan QR tidak cocok. Pindai ulang QR di tablet.', 'error');
+            return;
+          }
+          finalRoomId = rec.roomId || finalRoomId;
+          await fb.put(fb.pairingUrl(pendingPairDevice.code), {
+            ...rec,
+            status: 'paired',
+            monitorName: appState.deviceName || 'HP Orang Tua',
+            pairedAt: Date.now(),
+          });
+        } catch (err) {
+          showToast(err.message || 'Gagal menyelesaikan pairing.', 'error');
+          return;
+        }
+      }
+
+      const dev = {
+        id: `dev_${Date.now()}`,
+        code: pendingPairDevice.code,
+        roomId: finalRoomId,
+        name: finalName,
+        pairedAt: Date.now(),
+        lastConnectedAt: null,
+      };
+      savePairedDevice(dev);
+      pendingPairDevice = null;
+      document.getElementById('manual-code-input').value = '';
+      cancelPendingPairing();
+      showPairedSuccess(dev.name);
+    }
+
+    function savePairedDevice(dev) {
+      appState.pairedDevices = [dev, ...appState.pairedDevices.filter(d => d.code !== dev.code)];
+      appState.activeDeviceId = dev.id;
+      saveState();
+      syncAllUI();
+    }
+
+    function showPairedSuccess(name) {
+      document.getElementById('pair-view-show').classList.add('hidden');
+      document.getElementById('pair-view-scan').classList.add('hidden');
+      document.getElementById('pair-success-name').textContent = name;
+      document.getElementById('pair-view-success').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function renderPairedDevicesList() {
+      const card = document.getElementById('paired-devices-card');
+      const list = document.getElementById('paired-devices-list');
+      if (!appState.pairedDevices.length) {
+        card.classList.add('hidden');
+        return;
+      }
+      card.classList.remove('hidden');
+      list.innerHTML = appState.pairedDevices.map(dev => `
+        <div class="p-3.5 rounded-2xl bg-[#F7F6F1] dark:bg-[#141C18] flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-sm font-semibold truncate">${dev.name}</p>
+            <p class="text-[11px] font-mono text-[#7B8580] dark:text-[#8F9E96]">Kode: ${dev.code}</p>
+          </div>
+          <button onclick="revokePairedDevice('${dev.id}')" class="min-h-[38px] px-3 rounded-xl bg-[#D95F5F]/12 text-[#D95F5F] text-xs font-semibold flex items-center gap-1.5">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            Cabut
+          </button>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function revokePairedDevice(id) {
+      openConfirmModal(
+        'Cabut Akses Perangkat?',
+        'Perangkat ini tidak akan bisa terhubung lagi sampai dipasangkan ulang lewat QR.',
+        'Cabut Akses',
+        () => {
+          disconnectWebRTC();
+          appState.pairedDevices = appState.pairedDevices.filter(d => d.id !== id);
+          appState.activeDeviceId = appState.pairedDevices[0]?.id || null;
+          saveState();
+          syncAllUI();
+          showToast('Akses perangkat dicabut.', 'info');
+        }
+      );
+    }
+
+    /* -----------------------------------------------------------------------
+     * 7. REAL WEBRTC ENGINE (SENDER, RECEIVER, DATACHANNEL, TALK-BACK, STATS)
+     * ----------------------------------------------------------------------- */
+    function stopRtcTimers() {
+      if (rtc.pollTimer) { clearInterval(rtc.pollTimer); rtc.pollTimer = null; }
+      if (rtc.heartbeatTimer) { clearInterval(rtc.heartbeatTimer); rtc.heartbeatTimer = null; }
+      if (rtc.statsTimer) { clearInterval(rtc.statsTimer); rtc.statsTimer = null; }
+      if (rtc.reconnectTimer) { clearTimeout(rtc.reconnectTimer); rtc.reconnectTimer = null; }
+    }
+
+    function closePeerOnly() {
+      if (rtc.statsTimer) { clearInterval(rtc.statsTimer); rtc.statsTimer = null; }
+      if (rtc.talkStream) {
+        rtc.talkStream.getTracks().forEach(t => t.stop());
+        rtc.talkStream = null;
+      }
+      rtc.talkSender = null;
+      if (rtc.pc) {
+        try {
+          rtc.pc.oniceconnectionstatechange = null;
+          rtc.pc.ontrack = null;
+          rtc.pc.onicecandidate = null;
+          rtc.pc.close();
+        } catch {}
+        rtc.pc = null;
+      }
+      rtc.dc = null;
+    }
+
+    function disconnectWebRTC() {
+      stopRtcTimers();
+      closePeerOnly();
+      rtc.remoteStream = null;
+      rtc.activeRole = null;
+      rtc.activeRoomId = null;
+      rtc.retryCount = 0;
+      rtc.status = 'disconnected';
+      rtc.iceState = 'closed';
+      rtc.quality = null;
+      rtc.routeLabel = null;
+      rtc.rttMs = null;
+      syncAllUI();
+    }
+
+    function markDeviceLastConnected() {
+      const dev = getActivePairedDevice();
+      if (dev) {
+        dev.lastConnectedAt = Date.now();
+        saveState();
+      }
+    }
+
+    async function applyVideoBitrate(qualityKey) {
+      if (!rtc.pc) return;
+      const preset = QUALITY_PRESETS[qualityKey] || QUALITY_PRESETS.auto;
+      const videoSender = rtc.pc.getSenders().find(s => s.track && s.track.kind === 'video');
+      if (!videoSender || !videoSender.getParameters) return;
+      try {
+        const params = videoSender.getParameters();
+        if (!params.encodings || !params.encodings.length) params.encodings = [{}];
+        params.encodings[0].maxBitrate = preset.bitrate;
+        await videoSender.setParameters(params);
+      } catch {}
+    }
+
+    function replaceWebRtcCameraTracks(stream) {
+      if (!rtc.pc || !stream) return;
+      const newVideo = stream.getVideoTracks()[0];
+      const newAudio = stream.getAudioTracks()[0];
+      rtc.pc.getSenders().forEach(sender => {
+        if (sender.track?.kind === 'video' && newVideo) sender.replaceTrack(newVideo).catch(() => {});
+        if (sender.track?.kind === 'audio' && newAudio) sender.replaceTrack(newAudio).catch(() => {});
+      });
+    }
+
+    function startRtcStatsMonitor(pc) {
+      if (rtc.statsTimer) clearInterval(rtc.statsTimer);
+      rtc.statsTimer = setInterval(async () => {
+        if (!pc || (pc.connectionState !== 'connected' && pc.iceConnectionState !== 'connected')) return;
+        try {
+          const stats = await pc.getStats();
+          let activePair = null;
+          const candidates = new Map();
+          stats.forEach(r => {
+            if (r.type === 'local-candidate' || r.type === 'remote-candidate') candidates.set(r.id, r);
+            if (r.type === 'candidate-pair' && r.state === 'succeeded' && r.nominated) activePair = r;
+          });
+          if (activePair) {
+            if (activePair.currentRoundTripTime != null) {
+              const ms = Math.round(activePair.currentRoundTripTime * 1000);
+              rtc.rttMs = ms;
+              rtc.quality = ms < 120 ? 'Sangat Baik' : (ms < 300 ? 'Baik' : 'Lemah');
+            } else {
+              rtc.quality = 'Baik';
+            }
+            const lCand = candidates.get(activePair.localCandidateId);
+            const rCand = candidates.get(activePair.remoteCandidateId);
+            const types = [lCand?.candidateType, rCand?.candidateType];
+            if (types.includes('relay')) rtc.routeLabel = 'TURN Relay';
+            else if (types.includes('srflx') || types.includes('prflx')) rtc.routeLabel = 'STUN P2P';
+            else if (types.includes('host')) rtc.routeLabel = 'Wi-Fi Lokal';
+            syncAllUI();
+          }
+        } catch {}
+      }, 3000);
+    }
+
+    function bindDataChannel(dc, pc) {
+      rtc.dc = dc;
+      dc.onmessage = async (e) => {
+        try {
+          const msg = JSON.parse(e.data);
+          if (msg.type === 'renegotiate-offer' && msg.sdp) {
+            await pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+            const ans = await pc.createAnswer();
+            await pc.setLocalDescription(ans);
+            if (dc.readyState === 'open') dc.send(JSON.stringify({ type: 'renegotiate-answer', sdp: ans }));
+          } else if (msg.type === 'renegotiate-answer' && msg.sdp) {
+            await pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+          } else if (msg.type === 'switch-camera' && rtc.activeRole === 'camera') {
+            const next = appState.cameraFacing === 'environment' ? 'user' : 'environment';
+            switchCameraLens(next);
+            showToast('Kamera diganti atas permintaan Monitor Orang Tua', 'info');
+          } else if (msg.type === 'set-quality' && msg.quality && rtc.activeRole === 'camera') {
+            appState.videoQuality = msg.quality;
+            saveState();
+            applyVideoBitrate(msg.quality);
+            showToast(`Kualitas disesuaikan ke ${QUALITY_PRESETS[msg.quality]?.label || msg.quality}`, 'info');
+          }
+        } catch {}
+      };
+    }
+
+    // --- CAMERA SENDER (TABLET) ---
+    function toggleCameraBroadcast() {
+      const hosting = ['waiting', 'connecting', 'connected', 'reconnecting'].includes(rtc.status) && rtc.activeRole === 'camera';
+      if (hosting) {
+        disconnectWebRTC();
+        showToast('Siaran jarak jauh dihentikan.', 'info');
+        return;
+      }
+      if (!isSignalingConfigured()) {
+        showToast('Atur URL Firebase Realtime Database terlebih dahulu.', 'info');
+        navigate('settings');
+        return;
+      }
+      const dev = getActivePairedDevice();
+      if (!dev) {
+        showToast('Pasangkan HP Orang Tua terlebih dahulu melalui QR Pairing.', 'info');
+        navigate('pairing');
+        return;
+      }
+      if (!localCameraStream) {
+        showToast('Aktifkan kamera lokal terlebih dahulu.', 'error');
+        return;
+      }
+      startCameraHost(dev.roomId || dev.code);
+    }
+
+    async function startCameraHost(roomId) {
+      stopRtcTimers();
+      closePeerOnly();
+      rtc.activeRole = 'camera';
+      rtc.activeRoomId = roomId;
+      rtc.lastError = null;
+      rtc.status = 'waiting';
+      syncAllUI();
+
+      const sendHeartbeat = () => {
+        fb.put(fb.sessionUrl(roomId, 'cameraOnline'), { ts: Date.now(), status: 'ready' }).catch(() => {});
+      };
+      sendHeartbeat();
+      rtc.heartbeatTimer = setInterval(sendHeartbeat, 15000);
+
+      let activeSessionId = null;
+      let addedMonitorCands = new Set();
+      let pendingRemoteCands = [];
+
+      const createOfferForSession = async (sessionId) => {
+        closePeerOnly();
+        addedMonitorCands = new Set();
+        pendingRemoteCands = [];
+        rtc.status = 'connecting';
+        rtc.lastError = null;
+        syncAllUI();
+
+        try {
+          const pc = new RTCPeerConnection({ iceServers: buildIceServers() });
+          rtc.pc = pc;
+          localCameraStream.getTracks().forEach(track => pc.addTrack(track, localCameraStream));
+
+          const dc = pc.createDataChannel('arsa-control');
+          bindDataChannel(dc, pc);
+
+          // Receive Parent Talk-Back audio on Tablet
+          pc.ontrack = (event) => {
+            if (event.streams && event.streams[0]) {
+              const audioEl = document.getElementById('tablet-talkback-audio');
+              audioEl.srcObject = event.streams[0];
+              audioEl.play().catch(() => {});
+            }
+          };
+
+          pc.oniceconnectionstatechange = () => {
+            rtc.iceState = pc.iceConnectionState;
+            if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
+              rtc.status = 'connected';
+              rtc.lastError = null;
+              markDeviceLastConnected();
+              applyVideoBitrate(appState.videoQuality);
+              startRtcStatsMonitor(pc);
+            } else if (pc.iceConnectionState === 'disconnected') {
+              rtc.status = 'reconnecting';
+              rtc.quality = 'Menyambung Ulang';
+            } else if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'closed') {
+              rtc.status = 'waiting';
+              rtc.quality = null;
+              rtc.routeLabel = null;
+              rtc.rttMs = null;
+            }
+            syncAllUI();
+          };
+
+          pc.onicecandidate = (e) => {
+            if (e.candidate) {
+              fb.post(fb.sessionUrl(roomId, `calls/${sessionId}/cameraCandidates`), e.candidate.toJSON()).catch(() => {});
+            }
+          };
+
+          const offer = await pc.createOffer();
+          await pc.setLocalDescription(offer);
+          await fb.put(fb.sessionUrl(roomId, `calls/${sessionId}/offer`), {
+            type: offer.type,
+            sdp: offer.sdp,
+            createdAt: Date.now(),
+          });
+        } catch (err) {
+          rtc.status = 'error';
+          rtc.lastError = err.message || 'Gagal membuat sesi WebRTC.';
+          syncAllUI();
+        }
+      };
+
+      rtc.pollTimer = setInterval(async () => {
+        try {
+          const req = await fb.get(fb.sessionUrl(roomId, 'request'));
+          if (req?.sessionId && req.sessionId !== activeSessionId) {
+            if (!req.createdAt || Date.now() - req.createdAt < 45000) {
+              activeSessionId = req.sessionId;
+              await createOfferForSession(activeSessionId);
+              return;
+            }
+          }
+          if (activeSessionId && rtc.pc) {
+            const callData = await fb.get(fb.sessionUrl(roomId, `calls/${activeSessionId}`));
+            if (!callData) return;
+
+            if (callData.answer && !rtc.pc.currentRemoteDescription) {
+              await rtc.pc.setRemoteDescription(new RTCSessionDescription(callData.answer));
+              for (const c of pendingRemoteCands) {
+                await rtc.pc.addIceCandidate(new RTCIceCandidate(c)).catch(() => {});
+              }
+              pendingRemoteCands = [];
+            }
+            if (callData.monitorCandidates) {
+              for (const [k, cand] of Object.entries(callData.monitorCandidates)) {
+                if (!addedMonitorCands.has(k)) {
+                  addedMonitorCands.add(k);
+                  if (rtc.pc.currentRemoteDescription) {
+                    await rtc.pc.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {});
+                  } else {
+                    pendingRemoteCands.push(cand);
+                  }
+                }
+              }
+            }
+          }
+        } catch (err) {
+          rtc.lastError = err.message;
+          syncAllUI();
+        }
+      }, 1500);
+    }
+
+    // --- MONITOR RECEIVER (PARENT PHONE) ---
+    function handleMonitorConnect() {
+      if (!isSignalingConfigured()) {
+        showToast('Mode Prototipe — atur URL Firebase RTDB di Pengaturan terlebih dahulu.', 'info');
+        navigate('settings');
+        return;
+      }
+      const dev = getActivePairedDevice();
+      if (!dev) {
+        showToast('Pasangkan tablet kamera bayi terlebih dahulu.', 'info');
+        navigate('pairing');
+        return;
+      }
+      connectAsMonitor(dev.roomId || dev.code, false);
+    }
+
+    function toggleMonitorConnection() {
+      if (rtc.status === 'connected' || rtc.status === 'connecting') {
+        disconnectWebRTC();
+        showToast('Koneksi monitor diputuskan.', 'info');
+      } else {
+        handleMonitorConnect();
+      }
+    }
+
+    async function connectAsMonitor(roomId, isRetry = false) {
+      stopRtcTimers();
+      closePeerOnly();
+      rtc.activeRole = 'monitor';
+      rtc.activeRoomId = roomId;
+      if (!isRetry) rtc.retryCount = 0;
+      rtc.lastError = null;
+      rtc.status = isRetry ? 'reconnecting' : 'connecting';
+      syncAllUI();
+
+      try {
+        const presence = await fb.get(fb.sessionUrl(roomId, 'cameraOnline'));
+        if (!presence?.ts || Date.now() - presence.ts > 45000) {
+          rtc.status = 'disconnected';
+          rtc.lastError = 'Tablet kamar bayi belum siap. Buka Mode Kamera di tablet lalu tekan "Siap Terima Monitor Orang Tua".';
+          syncAllUI();
+          return;
+        }
+
+        const sessionId = `sess_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+        await fb.put(fb.sessionUrl(roomId, 'request'), { sessionId, createdAt: Date.now() });
+
+        const pc = new RTCPeerConnection({ iceServers: buildIceServers() });
+        rtc.pc = pc;
+
+        pc.ondatachannel = (event) => bindDataChannel(event.channel, pc);
+        pc.ontrack = (event) => {
+          if (event.streams && event.streams[0]) {
+            rtc.remoteStream = event.streams[0];
+            attachRemoteStreamToVideos();
+            syncAllUI();
+          }
+        };
+
+        pc.oniceconnectionstatechange = () => {
+          rtc.iceState = pc.iceConnectionState;
+          if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
+            rtc.retryCount = 0;
+            rtc.status = 'connected';
+            rtc.lastError = null;
+            markDeviceLastConnected();
+            startRtcStatsMonitor(pc);
+          } else if (pc.iceConnectionState === 'disconnected') {
+            rtc.status = 'reconnecting';
+            rtc.quality = 'Menyambung Ulang';
+            if (rtc.retryCount < 3) {
+              rtc.retryCount += 1;
+              rtc.reconnectTimer = setTimeout(() => {
+                if (rtc.activeRole === 'monitor' && rtc.activeRoomId === roomId) {
+                  connectAsMonitor(roomId, true);
+                }
+              }, 3500);
+            }
+          } else if (pc.iceConnectionState === 'failed') {
+            if (rtc.retryCount < 2) {
+              rtc.retryCount += 1;
+              rtc.status = 'reconnecting';
+              rtc.reconnectTimer = setTimeout(() => connectAsMonitor(roomId, true), 2500);
+            } else {
+              rtc.status = 'error';
+              rtc.quality = null;
+              rtc.routeLabel = null;
+              rtc.rttMs = null;
+              rtc.lastError = 'Koneksi peer-to-peer (ICE) gagal menembus NAT jaringan. Jika memakai data seluler 4G/5G, tambahkan server TURN relay gratis di Pengaturan.';
+            }
+          }
+          syncAllUI();
+        };
+
+        pc.onicecandidate = (e) => {
+          if (e.candidate) {
+            fb.post(fb.sessionUrl(roomId, `calls/${sessionId}/monitorCandidates`), e.candidate.toJSON()).catch(() => {});
+          }
+        };
+
+        const addedCamCands = new Set();
+        const pendingCamCands = [];
+        const startedAt = Date.now();
+
+        rtc.pollTimer = setInterval(async () => {
+          try {
+            if (!pc.currentRemoteDescription && Date.now() - startedAt > 20000) {
+              stopRtcTimers();
+              rtc.status = 'error';
+              rtc.lastError = 'Waktu tunggu habis. Pastikan tablet kamar bayi tetap menyala dan terhubung Wi-Fi.';
+              syncAllUI();
+              return;
+            }
+            const callData = await fb.get(fb.sessionUrl(roomId, `calls/${sessionId}`));
+            if (!callData) return;
+
+            if (callData.offer && !pc.currentRemoteDescription) {
+              await pc.setRemoteDescription(new RTCSessionDescription(callData.offer));
+              const ans = await pc.createAnswer();
+              await pc.setLocalDescription(ans);
+              await fb.put(fb.sessionUrl(roomId, `calls/${sessionId}/answer`), { type: ans.type, sdp: ans.sdp });
+              for (const c of pendingCamCands) {
+                await pc.addIceCandidate(new RTCIceCandidate(c)).catch(() => {});
+              }
+              pendingCamCands.length = 0;
+            }
+            if (callData.cameraCandidates) {
+              for (const [k, cand] of Object.entries(callData.cameraCandidates)) {
+                if (!addedCamCands.has(k)) {
+                  addedCamCands.add(k);
+                  if (pc.currentRemoteDescription) {
+                    await pc.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {});
+                  } else {
+                    pendingCamCands.push(cand);
+                  }
+                }
+              }
+            }
+          } catch (err) {
+            rtc.lastError = err.message;
+            syncAllUI();
+          }
+        }, 1400);
+      } catch (err) {
+        rtc.status = 'error';
+        rtc.lastError = err.message || 'Gagal menghubungi kamera bayi.';
+        syncAllUI();
+      }
+    }
+
+    function attachRemoteStreamToVideos() {
+      const vids = [document.getElementById('monitor-video'), document.getElementById('live-video')];
+      vids.forEach(v => {
+        if (!v || !rtc.remoteStream) return;
+        if (v.srcObject !== rtc.remoteStream) v.srcObject = rtc.remoteStream;
+        v.muted = !monitorSpeakerOn;
+        v.play().then(() => {
+          document.getElementById('mon-unmute-prompt').classList.add('hidden');
+          document.getElementById('live-unmute-prompt').classList.add('hidden');
+        }).catch(() => {
+          v.muted = true;
+          monitorSpeakerOn = false;
+          document.getElementById('mon-unmute-prompt').classList.remove('hidden');
+          document.getElementById('live-unmute-prompt').classList.remove('hidden');
+          v.play().catch(() => {});
+          syncAllUI();
+        });
+      });
+    }
+
+    function forceUnmuteMonitor() {
+      monitorSpeakerOn = true;
+      ['monitor-video', 'live-video'].forEach(id => {
+        const v = document.getElementById(id);
+        if (v) { v.muted = false; v.play().catch(() => {}); }
+      });
+      document.getElementById('mon-unmute-prompt').classList.add('hidden');
+      document.getElementById('live-unmute-prompt').classList.add('hidden');
+      syncAllUI();
+    }
+
+    function toggleMonitorSpeaker() {
+      monitorSpeakerOn = !monitorSpeakerOn;
+      ['monitor-video', 'live-video'].forEach(id => {
+        const v = document.getElementById(id);
+        if (v) {
+          v.muted = !monitorSpeakerOn;
+          if (monitorSpeakerOn) v.play().catch(() => {});
+        }
+      });
+      syncAllUI();
+    }
+
+    // --- TALK-BACK (HOLD TO TALK) ---
+    async function startTalkBackUI(e) {
+      if (e) e.preventDefault();
+      if (rtc.status !== 'connected' || !rtc.pc || !rtc.dc || rtc.dc.readyState !== 'open') {
+        showToast('Hubungkan ke kamera bayi terlebih dahulu untuk menggunakan Talk-Back.', 'info');
+        return;
+      }
+      try {
+        const micStream = await navigator.mediaDevices.getUserMedia({
+          audio: { echoCancellation: true, noiseSuppression: true },
+          video: false,
+        });
+        rtc.talkStream = micStream;
+        const track = micStream.getAudioTracks()[0];
+        if (track) {
+          rtc.talkSender = rtc.pc.addTrack(track, micStream);
+          const offer = await rtc.pc.createOffer();
+          await rtc.pc.setLocalDescription(offer);
+          rtc.dc.send(JSON.stringify({ type: 'renegotiate-offer', sdp: offer }));
+        }
+        isTalkingBack = true;
+        updateTalkBackButtons();
+      } catch {
+        showToast('Izin mikrofon ditolak atau tidak tersedia.', 'error');
+      }
+    }
+
+    async function stopTalkBackUI() {
+      if (!isTalkingBack) return;
+      isTalkingBack = false;
+      updateTalkBackButtons();
+
+      if (rtc.talkSender && rtc.pc) {
+        try {
+          rtc.pc.removeTrack(rtc.talkSender);
+          if (rtc.dc && rtc.dc.readyState === 'open') {
+            const offer = await rtc.pc.createOffer();
+            await rtc.pc.setLocalDescription(offer);
+            rtc.dc.send(JSON.stringify({ type: 'renegotiate-offer', sdp: offer }));
+          }
+        } catch {}
+        rtc.talkSender = null;
+      }
+      if (rtc.talkStream) {
+        rtc.talkStream.getTracks().forEach(t => t.stop());
+        rtc.talkStream = null;
+      }
+    }
+
+    function updateTalkBackButtons() {
+      const mBtn = document.getElementById('btn-mon-talk');
+      const lBtn = document.getElementById('btn-live-talk');
+      document.getElementById('mon-talk-label').textContent = isTalkingBack ? 'Lepas untuk Berhenti' : 'Tahan untuk Bicara';
+      document.getElementById('live-talk-label').textContent = isTalkingBack ? 'Bicara...' : 'Tahan Bicara';
+      mBtn.classList.toggle('bg-[#4D9971]', isTalkingBack);
+      mBtn.classList.toggle('bg-[#344B3F]', !isTalkingBack);
+      lBtn.classList.toggle('bg-[#4D9971]', isTalkingBack);
+      lBtn.classList.toggle('bg-[#344B3F]', !isTalkingBack);
+    }
+
+    function sendRemoteSwitchCamera() {
+      if (rtc.status !== 'connected' || !rtc.dc || rtc.dc.readyState !== 'open') {
+        showToast('Perlu koneksi aktif untuk mengganti kamera dari jarak jauh.', 'info');
+        return;
+      }
+      rtc.dc.send(JSON.stringify({ type: 'switch-camera' }));
+      showToast('Permintaan ganti kamera dikirim ke tablet.', 'info');
+    }
+
+    function setVideoQuality(q, closeLiveMenu = false) {
+      appState.videoQuality = q;
+      saveState();
+      if (rtc.status === 'connected' && rtc.dc && rtc.dc.readyState === 'open') {
+        rtc.dc.send(JSON.stringify({ type: 'set-quality', quality: q }));
+      }
+      if (closeLiveMenu) {
+        document.getElementById('live-quality-popover').classList.add('hidden');
+        showToast(`Kualitas diatur ke ${QUALITY_PRESETS[q]?.label || q}`, 'info');
+      }
+      syncAllUI();
+    }
+
+    /* -----------------------------------------------------------------------
+     * 8. LIVE MONITOR THEATER CONTROLS (BRIGHTNESS, SNAPSHOT, FULLSCREEN)
+     * ----------------------------------------------------------------------- */
+    function toggleLiveControls() {
+      liveControlsVisible = !liveControlsVisible;
+      updateLiveControlsVisibility();
+    }
+
+    function updateLiveControlsVisibility() {
+      const top = document.getElementById('live-top-bar');
+      const bot = document.getElementById('live-bottom-bar');
+      [top, bot].forEach(el => {
+        el.classList.toggle('opacity-0', !liveControlsVisible);
+        el.classList.toggle('pointer-events-none', !liveControlsVisible);
+      });
+      if (!liveControlsVisible) {
+        document.getElementById('live-details-popover').classList.add('hidden');
+        document.getElementById('live-quality-popover').classList.add('hidden');
+      }
+    }
+
+    function toggleLiveDetails() {
+      document.getElementById('live-quality-popover').classList.add('hidden');
+      document.getElementById('live-details-popover').classList.toggle('hidden');
+    }
+
+    function toggleLiveQualityMenu() {
+      document.getElementById('live-details-popover').classList.add('hidden');
+      document.getElementById('live-quality-popover').classList.toggle('hidden');
+    }
+
+    function setLiveBrightness(val) {
+      document.getElementById('live-brightness-val').textContent = `${val}%`;
+      document.getElementById('live-video').style.filter = `brightness(${val}%)`;
+    }
+
+    function toggleBrowserFullscreen() {
+      const el = document.getElementById('screen-live');
+      if (!document.fullscreenElement) {
+        el.requestFullscreen?.().catch(() => showToast('Layar penuh tidak didukung browser ini.', 'info'));
+      } else {
+        document.exitFullscreen?.().catch(() => {});
+      }
+    }
+
+    function takeLocalSnapshot() {
+      const v = document.getElementById('live-video');
+      if (!v || !rtc.remoteStream || v.videoWidth === 0) {
+        showToast('Tidak ada video aktif untuk diambil gambarnya.', 'info');
+        return;
+      }
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = v.videoWidth;
+        canvas.height = v.videoHeight;
+        canvas.getContext('2d').drawImage(v, 0, 0, canvas.width, canvas.height);
+        const a = document.createElement('a');
+        a.href = canvas.toDataURL('image/png');
+        a.download = `arsa-snapshot-${Date.now()}.png`;
+        a.click();
+        showToast('Tangkapan layar disimpan secara lokal.', 'success');
+      } catch {
+        showToast('Gagal mengambil tangkapan layar.', 'error');
+      }
+    }
+
+    /* -----------------------------------------------------------------------
+     * 9. SETTINGS ACTIONS
+     * ----------------------------------------------------------------------- */
+    function populateSettingsInputs() {
+      document.getElementById('set-device-name').value = appState.deviceName || '';
+      document.getElementById('set-firebase-url').value = appState.signalingConfig.firebaseDbUrl || '';
+      document.getElementById('set-turn-url').value = appState.signalingConfig.turnUrl || '';
+      document.getElementById('set-turn-user').value = appState.signalingConfig.turnUsername || '';
+      document.getElementById('set-turn-cred').value = appState.signalingConfig.turnCredential || '';
+    }
+
+    function updateDeviceNameFromSettings(val) {
+      appState.deviceName = val || 'Kamar Si Kecil';
+      saveState();
+    }
+
+    function switchRoleFromSettings(role) {
+      disconnectWebRTC();
+      appState.role = role;
+      saveState();
+      renderNavigation();
+      syncAllUI();
+      showToast(`Peran diubah ke ${role === 'camera' ? 'Kamera Bayi' : 'Monitor Orang Tua'}.`, 'info');
+    }
+
+    function saveSignalingConfig(e) {
+      e.preventDefault();
+      appState.signalingConfig = {
+        firebaseDbUrl: document.getElementById('set-firebase-url').value.trim().replace(/\/+$/, ''),
+        turnUrl: document.getElementById('set-turn-url').value.trim(),
+        turnUsername: document.getElementById('set-turn-user').value.trim(),
+        turnCredential: document.getElementById('set-turn-cred').value.trim(),
+      };
+      saveState();
+      syncAllUI();
+      showToast('Konfigurasi signaling WebRTC disimpan.', 'success');
+    }
+
+    async function testSignalingConnection() {
+      const urlVal = document.getElementById('set-firebase-url').value.trim().replace(/\/+$/, '');
+      if (!/^https:\/\/[a-zA-Z0-9-]+\.(firebaseio\.com|firebasedatabase\.app)/.test(urlVal)) {
+        showToast('Masukkan URL Firebase Realtime Database yang valid terlebih dahulu.', 'error');
+        return;
+      }
+      const btn = document.getElementById('btn-test-signaling');
+      btn.disabled = true;
+      btn.querySelector('span').textContent = 'Menguji...';
+      try {
+        const probeUrl = `${urlVal}/arsa_sessions/probe_${Date.now()}.json`;
+        await fb.put(probeUrl, { ping: Date.now() });
+        const check = await fb.get(probeUrl);
+        await fb.del(probeUrl);
+        if (!check?.ping) throw new Error('Respon database tidak sesuai.');
+        showToast('Signaling Firebase RTDB terhubung & siap dipakai!', 'success');
+      } catch (err) {
+        showToast(`Gagal terhubung: ${err.message}. Periksa URL & Rules Firebase.`, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.querySelector('span').textContent = 'Uji Koneksi Signaling';
+      }
+    }
+
+    function requestUnpairAll() {
+      openConfirmModal(
+        'Putus Semua Pairing?',
+        'Semua perangkat terpasang akan dihapus dan sesi aktif akan dihentikan.',
+        'Putus Semua',
+        () => {
+          disconnectWebRTC();
+          appState.pairedDevices = [];
+          appState.activeDeviceId = null;
+          saveState();
+          syncAllUI();
+          showToast('Semua pairing perangkat telah dicabut.', 'info');
+        }
+      );
+    }
+
+    function requestResetApp() {
+      openConfirmModal(
+        'Reset Aplikasi?',
+        'Seluruh pengaturan, konfigurasi signaling, dan perangkat terpasang akan dihapus.',
+        'Reset Sekarang',
+        () => {
+          disconnectWebRTC();
+          stopLocalCamera();
+          localStorage.removeItem(STORAGE_KEY);
+          appState = structuredClone(DEFAULT_STATE);
+          applyTheme();
+          navigate('welcome');
+          showToast('Aplikasi telah direset ke awal.', 'info');
+        }
+      );
+    }
+
+    /* -----------------------------------------------------------------------
+     * 10. INITIALIZATION
+     * ----------------------------------------------------------------------- */
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && currentScreen === 'camera' && appState.keepScreenAwake) {
+        syncWakeLock();
+      }
+    });
+
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', applyTheme);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      applyTheme();
+      initDeviceTelemetry();
+      navigate(currentScreen);
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
