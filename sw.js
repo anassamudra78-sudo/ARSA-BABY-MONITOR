@@ -1,5 +1,5 @@
-const CACHE_NAME = 'arsa-baby-monitor-v1';
-const APP_SHELL = ['./', './index.html', './manifest.json', './icon.svg'];
+const CACHE_NAME = 'arsa-baby-monitor-v2';
+const APP_SHELL = ['./', './index.html', './manifest.json', './logoarsa.jpeg'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
